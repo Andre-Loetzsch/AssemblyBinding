@@ -1,2 +1,2 @@
-# Oleander.AssemblyBinding.
+# Oleander.AssemblyBinding
 Assembly binding tool

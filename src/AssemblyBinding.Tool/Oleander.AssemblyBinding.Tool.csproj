@@ -3,9 +3,9 @@
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
-    <SourceRevisionId>0a7ca9d075a5ef1c7148ceacf644039d0b59d5ce</SourceRevisionId>
-    <VersionSuffix>alpha</VersionSuffix>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
+    <SourceRevisionId>7079f078536ff1b1ff9ab1a58d7a4b24beaf2b30</SourceRevisionId>
+    <VersionSuffix>beta</VersionSuffix>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version Condition="'$(VersionSuffix)' != ''">$(AssemblyVersion)-$(VersionSuffix)</Version>
     <Version Condition="'$(VersionSuffix)' == ''">$(AssemblyVersion)</Version>
@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Oleander.Assembly.Comparers" Version="1.0.0" />
     <PackageReference Include="Oleander.Assembly.Versioning.BuildTask" Version="1.0.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
