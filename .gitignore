@@ -396,3 +396,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+# Versioning cache
+**/.[Vv]ersioning/[Cc]ache/

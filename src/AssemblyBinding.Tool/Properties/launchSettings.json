@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Oleander.AssemblyBinding.Tool dependencies": {
+      "commandName": "Project",
+      "commandLineArgs": "resolve --base-dir D:\\dev\\Tentakel\\dependencies\\dev-André\\Debug"
+    }
+  }
+}

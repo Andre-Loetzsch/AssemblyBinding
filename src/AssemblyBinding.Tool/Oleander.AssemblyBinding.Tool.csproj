@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <SourceRevisionId>0a7ca9d075a5ef1c7148ceacf644039d0b59d5ce</SourceRevisionId>
+    <VersionSuffix>alpha</VersionSuffix>
+    <FileVersion>$(AssemblyVersion)</FileVersion>
+    <Version Condition="'$(VersionSuffix)' != ''">$(AssemblyVersion)-$(VersionSuffix)</Version>
+    <Version Condition="'$(VersionSuffix)' == ''">$(AssemblyVersion)</Version>
+    <InformationalVersion>$(AssemblyVersion)</InformationalVersion>
+  </PropertyGroup>
+
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <PackAsTool>True</PackAsTool>
+    <ToolCommandName>assembly-binding</ToolCommandName>
+    <PackageId>dotnet-assembly-binding-tool</PackageId>
+    <Description>A dotnet tool for geberate assembly bindings.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Oleander.Assembly.Versioning.BuildTask" Version="1.0.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Oleander.Extensions.Configuration" Version="1.1.23347.11358" />
+    <PackageReference Include="Oleander.Extensions.Configuration.Json" Version="1.1.23347.11358" />
+    <PackageReference Include="Oleander.Extensions.DependencyInjection" Version="1.1.23347.11358" />
+    <PackageReference Include="Oleander.Extensions.Hosting.Abstractions" Version="1.1.23347.11358" />
+    <PackageReference Include="Oleander.Extensions.Logging" Version="1.1.23348" />
+    <PackageReference Include="Oleander.Extensions.Logging.Abstractions" Version="1.1.23347.11358" />
+    <PackageReference Include="Oleander.Extensions.Logging.Console" Version="1.1.23347.11358" />
+    <PackageReference Include="Oleander.Extensions.Logging.File" Version="1.1.23347.11358" />
+    <PackageReference Include="Oleander.Extensions.Logging.TextFormatters" Version="1.1.23347.11358" />
+    <PackageReference Include="Oleander.Extensions.Logging.TextFormatters.Abstractions" Version="1.1.23347.11358" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
+
+
+</Project>
