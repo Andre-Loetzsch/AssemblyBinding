@@ -47,7 +47,7 @@ jobs:
          github_token: ${{ secrets.GITHUB_TOKEN }}
 
      - name: 'delete dotnet-assembly-binding-tool old packages'
-       if: env.VERSION_SUFFIX == 'dev'
+       if: env.VERSION_SUFFIX == 'devX'
        uses: actions/delete-package-versions@v5
        with:
          package-name: 'dotnet-assembly-binding-tool'
