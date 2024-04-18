@@ -79,9 +79,6 @@ internal static class TabCompletions
 
                 if (filePatternExtension.StartsWith(lastWordToCompleteExtension))
                 {
-                    // SR.str
-                    // *.strings
-
                     searchPattern = $"{lastWordToComplete
                         .Substring(0, lastWordToComplete.Length - lastWordToCompleteExtension.Length)}{filePattern
                         .Substring(filePattern.Length - filePatternExtension.Length)}";

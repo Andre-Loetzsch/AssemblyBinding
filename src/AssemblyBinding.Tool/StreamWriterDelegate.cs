@@ -3,19 +3,12 @@ using System.CommandLine.IO;
 
 namespace Oleander.AssemblyBinding.Tool;
 
-internal class StreamWriterDelegate : IStandardStreamWriter
+internal class StreamWriterDelegate(Action<string> writeAction) : IStandardStreamWriter
 {
-    private readonly Action<string> _writeAction;
-
-    public StreamWriterDelegate(Action<string> writeAction)
-    {
-        this._writeAction = writeAction;
-    }
-
     public void Write(string? value)
     {
         if (value == null) return;
 
-        this._writeAction(value);
+        writeAction(value);
     }
 }

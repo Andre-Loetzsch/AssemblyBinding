@@ -4,6 +4,10 @@
       "commandName": "Project",
       "commandLineArgs": "resolve --base-dir D:\\dev\\Tentakel\\dependencies\\dev-André\\Debug"
     },
+    "Oleander.AssemblyBinding.Tool TargetDir": {
+      "commandName": "Project",
+      "commandLineArgs": "resolve --base-dir D:\\dev\\git\\oleander\\AssemblyBinding\\src\\AssemblyBinding.Tool\\bin\\Debug\\net8.0"
+    },
     "Oleander.AssemblyBinding.Tool L316IT012": {
       "commandName": "Project",
       "commandLineArgs": "resolve --base-dir C:\\dev\\Tentakel\\dependencies\\dev-André\\Debug"

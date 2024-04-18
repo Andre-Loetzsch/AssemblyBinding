@@ -3,8 +3,8 @@
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>0.2.0.0</AssemblyVersion>
-    <SourceRevisionId>7079f078536ff1b1ff9ab1a58d7a4b24beaf2b30</SourceRevisionId>
+    <AssemblyVersion>0.2.1.0</AssemblyVersion>
+    <SourceRevisionId>c187ec35a16994212733d4b4da48dffcee8fba47</SourceRevisionId>
     <VersionSuffix>beta</VersionSuffix>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version Condition="'$(VersionSuffix)' != ''">$(AssemblyVersion)-$(VersionSuffix)</Version>
