@@ -1,10 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AssemblyVersion>0.2.1.0</AssemblyVersion>
-    <SourceRevisionId>c187ec35a16994212733d4b4da48dffcee8fba47</SourceRevisionId>
+    <AssemblyVersion>0.3.0.0</AssemblyVersion>
+    <SourceRevisionId>0056e115551b99fc121285ab15ba7a3b8dcd3c77</SourceRevisionId>
     <VersionSuffix>beta</VersionSuffix>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version Condition="'$(VersionSuffix)' != ''">$(AssemblyVersion)-$(VersionSuffix)</Version>
@@ -12,10 +10,10 @@
     <InformationalVersion>$(AssemblyVersion)</InformationalVersion>
   </PropertyGroup>
 
+  <Import Project="..\..\Common\targets\common.targets" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net8.0</TargetFrameworks>
     <PackAsTool>True</PackAsTool>
     <ToolCommandName>assembly-binding</ToolCommandName>
     <PackageId>dotnet-assembly-binding-tool</PackageId>
@@ -30,7 +28,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Oleander.Extensions.Configuration" Version="1.1.23347.11358" />
-    <PackageReference Include="Oleander.Extensions.Configuration.Json" Version="1.1.23347.11358" />
     <PackageReference Include="Oleander.Extensions.DependencyInjection" Version="1.1.23347.11358" />
     <PackageReference Include="Oleander.Extensions.Hosting.Abstractions" Version="1.1.23347.11358" />
     <PackageReference Include="Oleander.Extensions.Logging" Version="1.1.23348" />
@@ -41,6 +38,4 @@
     <PackageReference Include="Oleander.Extensions.Logging.TextFormatters.Abstractions" Version="1.1.23347.11358" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
-
-
 </Project>
