@@ -2,6 +2,9 @@
 
 internal class BindingInfo(string assemblyName)
 {
+    public List<BindingInfo> ReferencedByAssembly { get; } = [];
+    public Version? ReferencedByAssemblyVersion { get; set; } 
+
     public string AssemblyName { get; } = assemblyName;
     public Version? AssemblyVersion { get; set; }
 

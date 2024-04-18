@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Oleander.AssemblyBinding.Tool.Data;
@@ -10,7 +11,7 @@ namespace Oleander.AssemblyBinding.Tool.Commands;
 internal class AssemblyBindingCommand : Command
 {
     private readonly Dictionary<string, BindingInfo> _bindingInfoCache = new();
-    private readonly Dictionary<string, List<string>> _assemblyDependingOn = new();
+    //private readonly Dictionary<string, List<string>> _assemblyDependingOn = new();
 
 
     public AssemblyBindingCommand(ILogger logger, AssemblyBindingTool tool) : base("resolve", "resolve assembly bindings")
@@ -39,11 +40,14 @@ internal class AssemblyBindingCommand : Command
         var missingAssembliesSb = new StringBuilder();
         var assemblyDependingOnSb = new StringBuilder();
 
-        foreach (var item in this._assemblyDependingOn)
+        foreach (var item in this._bindingInfoCache.OrderBy(x => x.Key))
         {
-            if (IsExcludedAssemblies(item.Key)) continue;
+            if (IsExcludedAssemblies(item.Value.AssemblyName)) continue;
 
-            var dependingList = item.Value.Where(x => !IsExcludedAssemblies(x)).ToList();
+            var dependingList = item.Value.ReferencedByAssembly
+                .Where(x => !IsExcludedAssemblies(x.AssemblyName))
+                .OrderBy(x => x.AssemblyName)
+                .ToList();
 
             if (dependingList.Count == 0) continue;
 
@@ -54,10 +58,17 @@ internal class AssemblyBindingCommand : Command
 
             assemblyDependingOnSb.AppendLine(item.Key);
 
-            foreach (var subItem in dependingList)
+            var versionGroup = dependingList.GroupBy(x => x.ReferencedByAssemblyVersion);
+
+            foreach (var groupItem in versionGroup)
             {
-                assemblyDependingOnSb.Append("  -> ");
-                assemblyDependingOnSb.AppendLine(subItem);
+                assemblyDependingOnSb.AppendLine($"  {groupItem.Key}:");
+
+                foreach (var subItem in groupItem)
+                {
+                    assemblyDependingOnSb.Append("    -> ");
+                    assemblyDependingOnSb.AppendLine($"{subItem.AssemblyName}, Version={subItem.AssemblyVersion}, PublicKey={subItem.PublicKey}, Culture={subItem.Culture}");
+                }
             }
         }
 
@@ -74,8 +85,8 @@ internal class AssemblyBindingCommand : Command
             {
                 if (IsExcludedAssemblies(bindingInfo.AssemblyName)) continue;
                 missingAssembliesSb.AppendLine(bindingInfo.AssemblyName);
-                missingAssembliesSb.AppendLine(bindingInfo.LowestAssemblyVersion == bindingInfo.HighestAssemblyVersion ? 
-                    $"version: {bindingInfo.LowestAssemblyVersion}" : 
+                missingAssembliesSb.AppendLine(bindingInfo.LowestAssemblyVersion == bindingInfo.HighestAssemblyVersion ?
+                    $"version: {bindingInfo.LowestAssemblyVersion}" :
                     $"oldVersion: {bindingInfo.LowestAssemblyVersion} newVersion: {bindingInfo.HighestAssemblyVersion}");
 
                 missingAssembliesSb.AppendLine("-----------------------------------------------------------------------");
@@ -125,13 +136,13 @@ internal class AssemblyBindingCommand : Command
 
             var key = BuildAssemblyKey(name, publicKey, culture);
 
-            if (this._bindingInfoCache.TryGetValue(key, out var item))
+            if (this._bindingInfoCache.TryGetValue(key, out var bindingInfo))
             {
-                item.AssemblyVersion = version;
+                bindingInfo.AssemblyVersion = version;
             }
             else
             {
-                item = new BindingInfo(name)
+                bindingInfo = new BindingInfo(name)
                 {
                     AssemblyVersion = version,
                     HighestAssemblyVersion = version,
@@ -140,20 +151,11 @@ internal class AssemblyBindingCommand : Command
                     Culture = culture
                 };
 
-                this._bindingInfoCache[key] = item;
+                this._bindingInfoCache[key] = bindingInfo;
             }
 
             foreach (var reference in references)
             {
-
-                if (!this._assemblyDependingOn.TryGetValue(reference.FullName, out var dependingOnList))
-                {
-                    dependingOnList = new List<string>();
-                    this._assemblyDependingOn[reference.FullName] = dependingOnList;
-                }
-
-                if (!dependingOnList.Contains(assemblyDefinition.FullName)) dependingOnList.Add(assemblyDefinition.FullName);
-
                 name = reference.Name;
                 publicKey = reference.PublicKeyTokenAsString;
                 version = reference.Version;
@@ -161,17 +163,17 @@ internal class AssemblyBindingCommand : Command
 
                 key = BuildAssemblyKey(name, publicKey, culture);
 
-                if (this._bindingInfoCache.TryGetValue(key, out item))
+                if (this._bindingInfoCache.TryGetValue(key, out var refBindingInfo))
                 {
-                    item.Count += 1;
-                    if (item.HighestAssemblyVersion == null ||
-                        item.HighestAssemblyVersion < version) item.HighestAssemblyVersion = version;
-                    if (item.LowestAssemblyVersion == null ||
-                        item.LowestAssemblyVersion > version) item.LowestAssemblyVersion = version;
+                    refBindingInfo.Count += 1;
+                    if (refBindingInfo.HighestAssemblyVersion == null ||
+                        refBindingInfo.HighestAssemblyVersion < version) refBindingInfo.HighestAssemblyVersion = version;
+                    if (refBindingInfo.LowestAssemblyVersion == null ||
+                        refBindingInfo.LowestAssemblyVersion > version) refBindingInfo.LowestAssemblyVersion = version;
                 }
                 else
                 {
-                    item = new BindingInfo(name)
+                    refBindingInfo = new BindingInfo(name)
                     {
                         HighestAssemblyVersion = version,
                         LowestAssemblyVersion = version,
@@ -180,8 +182,11 @@ internal class AssemblyBindingCommand : Command
                         Count = 1
                     };
 
-                    this._bindingInfoCache[key] = item;
+                    this._bindingInfoCache[key] = refBindingInfo;
                 }
+
+                bindingInfo.ReferencedByAssemblyVersion = bindingInfo.AssemblyVersion;
+                refBindingInfo.ReferencedByAssembly.Add(bindingInfo);
             }
         }
         catch (Exception ex)
@@ -195,11 +200,7 @@ internal class AssemblyBindingCommand : Command
         return assemblyName.Equals("mscorlib", StringComparison.InvariantCultureIgnoreCase) ||
                assemblyName.Equals("System", StringComparison.InvariantCultureIgnoreCase) ||
                assemblyName.Equals("PresentationFramework", StringComparison.InvariantCultureIgnoreCase) ||
-               assemblyName.Equals("PresentationCore", StringComparison.InvariantCultureIgnoreCase) || 
-               assemblyName.StartsWith("mscorlib,", StringComparison.InvariantCultureIgnoreCase) ||
-               assemblyName.StartsWith("System,", StringComparison.InvariantCultureIgnoreCase) ||
-               assemblyName.StartsWith("PresentationFramework,", StringComparison.InvariantCultureIgnoreCase) ||
-               assemblyName.StartsWith("PresentationCore,", StringComparison.InvariantCultureIgnoreCase) ||
+               assemblyName.Equals("PresentationCore", StringComparison.InvariantCultureIgnoreCase) ||
                assemblyName.StartsWith("System.", StringComparison.InvariantCultureIgnoreCase) ||
                assemblyName.StartsWith("Microsoft.", StringComparison.InvariantCultureIgnoreCase);
     }
