@@ -1,7 +1,11 @@
-﻿namespace Oleander.AssemblyBinding.Tool.Data;
+﻿using System.Diagnostics;
 
+namespace Oleander.Assembly.Binding.Tool.Data;
+
+[DebuggerDisplay("{AssemblyName}, Resolved={Resolved}, Count={ReferencedByAssembly.Count}")]
 internal class AssemblyBindings(string assemblyName)
 {
+    public bool Resolved { get; set; } = false;
     public List<ReferencingAssembly> ReferencedByAssembly { get; } = [];
     
     public string AssemblyName { get; } = assemblyName;
@@ -19,15 +23,5 @@ internal class AssemblyBindings(string assemblyName)
     {
         get => string.IsNullOrEmpty(this._culture) ? "neutral" : this._culture;
         set => this._culture = value;
-    }
-
-    internal static bool IsExcludedAssemblies(string assemblyName)
-    {
-        return assemblyName.Equals("mscorlib", StringComparison.InvariantCultureIgnoreCase) ||
-               assemblyName.Equals("System", StringComparison.InvariantCultureIgnoreCase) ||
-               assemblyName.Equals("PresentationFramework", StringComparison.InvariantCultureIgnoreCase) ||
-               assemblyName.Equals("PresentationCore", StringComparison.InvariantCultureIgnoreCase) ||
-               assemblyName.StartsWith("System.", StringComparison.InvariantCultureIgnoreCase) ||
-               assemblyName.StartsWith("Microsoft.", StringComparison.InvariantCultureIgnoreCase);
     }
 }

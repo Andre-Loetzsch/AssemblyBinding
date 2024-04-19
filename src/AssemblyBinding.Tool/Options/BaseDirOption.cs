@@ -1,7 +1,6 @@
 ﻿using System.CommandLine;
-using System.IO;
 
-namespace Oleander.AssemblyBinding.Tool.Options;
+namespace Oleander.Assembly.Binding.Tool.Options;
 
 internal class BaseDirOption : Option<DirectoryInfo>
 {

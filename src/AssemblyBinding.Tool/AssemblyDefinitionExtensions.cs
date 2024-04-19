@@ -1,6 +1,6 @@
 ﻿using Oleander.Assembly.Comparers.Cecil;
 
-namespace Oleander.AssemblyBinding.Tool;
+namespace Oleander.Assembly.Binding.Tool;
 
 internal static class AssemblyDefinitionExtensions
 {

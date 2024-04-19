@@ -1,24 +1,19 @@
 ﻿using System.Text;
-using Oleander.AssemblyBinding.Tool.Data;
+using Oleander.Assembly.Binding.Tool.Data;
 
-namespace Oleander.AssemblyBinding.Tool.Reports;
+namespace Oleander.Assembly.Binding.Tool.Reports;
 
 internal static class AssemblyCorrelationReport
 {
-    internal static string Create(IDictionary<string, AssemblyBindings> bindings)
+    internal static string Create(IDictionary<string, AssemblyBindings> bindings, bool resolved)
     {
         var sb = new StringBuilder();
 
         foreach (var item in bindings
-                     .Where(x =>
-                         !AssemblyBindings.IsExcludedAssemblies(x.Value.AssemblyName) &&
-                         x.Value.AssemblyVersion != null &&
-                         x.Value.ReferencedByAssembly
-                             .Any(x1 => !AssemblyBindings.IsExcludedAssemblies(x1.AssemblyName)))
+                     .Where(x => x.Value.Resolved == resolved)
                      .OrderBy(x => x.Key))
         {
             var dependingList = item.Value.ReferencedByAssembly
-                .Where(x => !AssemblyBindings.IsExcludedAssemblies(x.AssemblyFullName))
                 .OrderBy(x => x.AssemblyFullName)
                 .ToList();
 

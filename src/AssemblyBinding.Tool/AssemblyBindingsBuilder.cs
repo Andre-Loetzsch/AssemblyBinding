@@ -1,7 +1,7 @@
-﻿using Oleander.Assembly.Comparers.Cecil;
-using Oleander.AssemblyBinding.Tool.Data;
+﻿using Oleander.Assembly.Binding.Tool.Data;
+using Oleander.Assembly.Comparers.Cecil;
 
-namespace Oleander.AssemblyBinding.Tool;
+namespace Oleander.Assembly.Binding.Tool;
 
 internal static class AssemblyBindingsBuilder
 {
@@ -49,12 +49,14 @@ internal static class AssemblyBindingsBuilder
 
             if (cache.TryGetValue(key, out var binding))
             {
+                binding.Resolved = true;
                 binding.AssemblyVersion = assemblyDefinition.Name.Version;
             }
             else
             {
                 binding = new AssemblyBindings(assemblyDefinition.Name.Name)
                 {
+                    Resolved = true,
                     AssemblyVersion = assemblyDefinition.Name.Version,
                     PublicKey = assemblyDefinition.Name.PublicKeyTokenAsString,
                     Culture = assemblyDefinition.Name.Culture
@@ -64,8 +66,7 @@ internal static class AssemblyBindingsBuilder
             }
 
             foreach (var reference in assemblyDefinition.Modules
-                         .SelectMany(x => x.AssemblyReferences)
-                         .Where(x => !AssemblyBindings.IsExcludedAssemblies(x.Name)))
+                         .SelectMany(x => x.AssemblyReferences))
             {
                 key = reference.BuildAssemblyKey();
 
@@ -73,7 +74,6 @@ internal static class AssemblyBindingsBuilder
                 {
                     refBinding = new AssemblyBindings(reference.Name)
                     {
-                        AssemblyVersion = reference.Version,
                         PublicKey = reference.PublicKeyTokenAsString,
                         Culture = reference.Culture
                     };

@@ -1,11 +1,8 @@
 ﻿using System.CommandLine;
-using System.Text;
 using Microsoft.Extensions.Logging;
-using Oleander.AssemblyBinding.Tool.Data;
-using Oleander.AssemblyBinding.Tool.Options;
-using Oleander.AssemblyBinding.Tool.Reports;
+using Oleander.Assembly.Binding.Tool.Options;
 
-namespace Oleander.AssemblyBinding.Tool.Commands;
+namespace Oleander.Assembly.Binding.Tool.Commands;
 
 
 internal class AssemblyBindingCommand : Command

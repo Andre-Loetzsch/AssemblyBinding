@@ -1,7 +1,7 @@
 ﻿using System.Text;
-using Oleander.AssemblyBinding.Tool.Data;
+using Oleander.Assembly.Binding.Tool.Data;
 
-namespace Oleander.AssemblyBinding.Tool.Reports;
+namespace Oleander.Assembly.Binding.Tool.Reports;
 
 internal static class MissingAssembliesReport
 {

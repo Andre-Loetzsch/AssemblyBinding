@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
+
 // ReSharper disable InconsistentNaming
 
-namespace Oleander.AssemblyBinding.Tool;
+namespace Oleander.Assembly.Binding.Tool;
 
 internal static class MsBuildLogFormatter
 {

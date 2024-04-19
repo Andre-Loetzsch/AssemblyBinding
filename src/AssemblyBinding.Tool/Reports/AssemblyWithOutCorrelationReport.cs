@@ -1,7 +1,7 @@
-﻿using Oleander.AssemblyBinding.Tool.Data;
-using System.Text;
+﻿using System.Text;
+using Oleander.Assembly.Binding.Tool.Data;
 
-namespace Oleander.AssemblyBinding.Tool.Reports;
+namespace Oleander.Assembly.Binding.Tool.Reports;
 
 internal static class AssemblyWithOutCorrelationReport
 {
@@ -12,9 +12,7 @@ internal static class AssemblyWithOutCorrelationReport
 
         foreach (var item in bindings
                      .Where(x =>
-                         !AssemblyBindings.IsExcludedAssemblies(x.Value.AssemblyName) &&
-                         x.Value.AssemblyVersion != null &&
-                         x.Value.ReferencedByAssembly.All(x1 => AssemblyBindings.IsExcludedAssemblies(x1.AssemblyName)))
+                         x.Value is { Resolved: true, ReferencedByAssembly.Count: 0 })
                      .OrderBy(x => x.Key))
         {
             if (bindings.Values

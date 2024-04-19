@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.CommandLine.Completions;
-using System.IO;
-using System.Linq;
+﻿using System.CommandLine.Completions;
 using Microsoft.Extensions.Logging;
 
-namespace Oleander.AssemblyBinding.Tool.Options;
+namespace Oleander.Assembly.Binding.Tool.Options;
 
 internal static class TabCompletions
 {

@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
-using Oleander.AssemblyBinding.Tool.Data;
-using Oleander.AssemblyBinding.Tool.Reports;
+﻿using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Microsoft.Extensions.Logging;
+using Oleander.Assembly.Binding.Tool.Data;
+using Oleander.Assembly.Binding.Tool.Reports;
 
-namespace Oleander.AssemblyBinding.Tool;
+namespace Oleander.Assembly.Binding.Tool;
 
 internal class AssemblyBindingTool(ILoggerFactory loggerFactory)
 {
@@ -17,7 +18,11 @@ internal class AssemblyBindingTool(ILoggerFactory loggerFactory)
         File.WriteAllText(Path.Combine(outPath, "assemblyDependency.md"), string.Concat(
             AssemblyWithOutCorrelationReport.Create(cache),
             Environment.NewLine,
-            AssemblyCorrelationReport.Create(cache)));
+            AssemblyCorrelationReport.Create(cache, true)));
+
+        File.WriteAllText(Path.Combine(outPath, "unresolvedAssemblyDependency.md"), 
+            AssemblyCorrelationReport.Create(cache, false));
+
 
         var assemblyBindingsContents = CreateAssemblyBindings(cache.Values);
         var missingAssembliesContents = MissingAssembliesReport.Create(cache.Values);
@@ -37,8 +42,8 @@ internal class AssemblyBindingTool(ILoggerFactory loggerFactory)
             .AppendLine("<assemblyBinding xmlns=\"urn:schemas-microsoft-com:asm.v1\">");
 
         foreach (var bindingInfo in bindings
-                     .Where(x => x.AssemblyVersion != null && x.ReferencedByAssembly.Any())
-                     .OrderBy(x => x.AssemblyName))
+                     .Where(x => x is { Resolved: true, ReferencedByAssembly.Count: > 0 } )
+                     .OrderBy(x => x.AssemblyName).ToList())
         {
             var minAssemblyVersion = bindingInfo.ReferencedByAssembly.Min(x => x.ReferencingAssemblyVersion);
             var maxAssemblyVersion = bindingInfo.ReferencedByAssembly.Max(x => x.ReferencingAssemblyVersion);
