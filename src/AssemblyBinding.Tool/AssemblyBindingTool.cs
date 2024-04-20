@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using System.Text;
+﻿using System.Text;
 using Microsoft.Extensions.Logging;
 using Oleander.Assembly.Binding.Tool.Data;
 using Oleander.Assembly.Binding.Tool.Reports;
@@ -15,23 +14,20 @@ internal class AssemblyBindingTool(ILoggerFactory loggerFactory)
 
         if (!Directory.Exists(outPath)) Directory.CreateDirectory(outPath);
 
-        File.WriteAllText(Path.Combine(outPath, "assemblyDependency.md"), string.Concat(
-            AssemblyWithOutCorrelationReport.Create(cache),
-            Environment.NewLine,
-            AssemblyCorrelationReport.Create(cache, true)));
+        File.WriteAllText(Path.Combine(outPath, "topLevelAssemblies.md"), 
+            TopLevelAssemblyReport.Create(cache));
 
-        File.WriteAllText(Path.Combine(outPath, "unresolvedAssemblyDependency.md"), 
-            AssemblyCorrelationReport.Create(cache, false));
+        File.WriteAllText(Path.Combine(outPath, "referencedByAssemblies.md"), 
+            ReferencedByAssembliesReport.Create(cache, true));
 
+        File.WriteAllText(Path.Combine(outPath, "unresolvedAssemblies.md"), 
+            ReferencedByAssembliesReport.Create(cache, false));
 
         var assemblyBindingsContents = CreateAssemblyBindings(cache.Values);
-        var missingAssembliesContents = MissingAssembliesReport.Create(cache.Values);
 
         if (!string.IsNullOrEmpty(assemblyBindingsContents))
             File.WriteAllText(Path.Combine(outPath, "assemblyBindings.xml"), assemblyBindingsContents);
-
-        if (!string.IsNullOrEmpty(missingAssembliesContents))
-            File.WriteAllText(Path.Combine(outPath, "missingAssemblies.md"), missingAssembliesContents);
+        
         return 0;
     }
 
