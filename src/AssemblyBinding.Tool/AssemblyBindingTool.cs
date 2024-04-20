@@ -1,7 +1,10 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Oleander.Assembly.Binding.Tool.Data;
 using Oleander.Assembly.Binding.Tool.Reports;
+using Westwind.AspNetCore.Markdown;
 
 namespace Oleander.Assembly.Binding.Tool;
 
@@ -9,25 +12,50 @@ internal class AssemblyBindingTool(ILoggerFactory loggerFactory)
 {
     internal int Resolve(DirectoryInfo directoryInfo)
     {
+
+
         var cache = AssemblyBindingsBuilder.Create(directoryInfo);
         var outPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "out");
 
+
+        //var psi = new ProcessStartInfo
+        //{
+        //    FileName = "https://github.com/Andre-Loetzsch",
+        //    UseShellExecute = true // Wichtig für .NET Core oder .NET 5+
+        //};
+
+        //Process.Start(psi);
+
+
         if (!Directory.Exists(outPath)) Directory.CreateDirectory(outPath);
 
-        File.WriteAllText(Path.Combine(outPath, "topLevelAssemblies.md"), 
-            TopLevelAssemblyReport.Create(cache));
+        File.WriteAllText(Path.Combine(outPath, "topLevelAssemblies.html"),
+            Markdown.Parse(TopLevelAssemblyReport.Create(cache)));
 
-        File.WriteAllText(Path.Combine(outPath, "referencedByAssemblies.md"), 
-            ReferencedByAssembliesReport.Create(cache, true));
+        File.WriteAllText(Path.Combine(outPath, "referencedByAssemblies.html"),
+            Markdown.Parse(ReferencedByAssembliesReport.Create(cache, true)));
 
-        File.WriteAllText(Path.Combine(outPath, "unresolvedAssemblies.md"), 
-            ReferencedByAssembliesReport.Create(cache, false));
+        File.WriteAllText(Path.Combine(outPath, "unresolvedAssemblies.html"),
+            Markdown.Parse(ReferencedByAssembliesReport.Create(cache, false)));
 
         var assemblyBindingsContents = CreateAssemblyBindings(cache.Values);
 
         if (!string.IsNullOrEmpty(assemblyBindingsContents))
             File.WriteAllText(Path.Combine(outPath, "assemblyBindings.xml"), assemblyBindingsContents);
-        
+
+
+
+
+        //var psi = new ProcessStartInfo
+        //{
+        //    FileName = Path.Combine(outPath, "unresolvedAssemblies.html"),
+        //    UseShellExecute = true // Wichtig für .NET Core oder .NET 5+
+        //};
+
+        //Process.Start(psi);
+
+
+
         return 0;
     }
 
