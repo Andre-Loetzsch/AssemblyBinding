@@ -83,9 +83,10 @@ internal static class AssemblyBindingsBuilder
 
                 refBinding.ReferencedByAssembly.Add(
                     new ReferencingAssembly(
-                        assemblyDefinition.BuildFullAssemblyName(),
-                        assemblyDefinition.Name.Name,
-                        assemblyDefinition.Name.Version, reference.Version));
+                            assemblyDefinition.BuildFullAssemblyName(),
+                            assemblyDefinition.Name.Name,
+                            assemblyDefinition.Name.Version, 
+                            reference.Version));
             }
         }
         catch (Exception ex)

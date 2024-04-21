@@ -12,6 +12,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{3FA1CA
 		Common\targets\common.targets = Common\targets\common.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oleander.Assembly.Binding.Test", "tests\Oleander.Assembly.Binding.Test\Oleander.Assembly.Binding.Test.csproj", "{836EE9F2-B7E0-46E0-B689-898A0B163915}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{7B001AA0-93B2-4E35-B6F8-1A82F1B016A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,12 +26,17 @@ Global
 		{C5BD14DF-5125-49F2-9AD4-E10FAFC0EC0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5BD14DF-5125-49F2-9AD4-E10FAFC0EC0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5BD14DF-5125-49F2-9AD4-E10FAFC0EC0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{836EE9F2-B7E0-46E0-B689-898A0B163915}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{836EE9F2-B7E0-46E0-B689-898A0B163915}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{836EE9F2-B7E0-46E0-B689-898A0B163915}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{836EE9F2-B7E0-46E0-B689-898A0B163915}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C5BD14DF-5125-49F2-9AD4-E10FAFC0EC0F} = {2FA92403-72B4-45D4-9F1B-76226685E24C}
+		{836EE9F2-B7E0-46E0-B689-898A0B163915} = {7B001AA0-93B2-4E35-B6F8-1A82F1B016A5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {96D41D9C-DF00-484A-9B01-CB2A72F08D7D}
