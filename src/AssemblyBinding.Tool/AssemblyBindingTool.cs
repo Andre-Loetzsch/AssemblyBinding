@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Oleander.Assembly.Binding.Tool.Data;
@@ -59,7 +58,38 @@ internal class AssemblyBindingTool(ILoggerFactory loggerFactory)
         return 0;
     }
 
+    private static string CreateAssemblyBindingsAsXml(IEnumerable<AssemblyBindings> bindings)
+    {
+        var sb = new StringBuilder()
+            .AppendLine("<assemblyBinding xmlns=\"urn:schemas-microsoft-com:asm.v1\">");
 
+        foreach (var bindingInfo in bindings
+                     .Where(x => x is { Resolved: true, ReferencedByAssembly.Count: > 0 })
+                     .OrderBy(x => x.AssemblyName).ToList())
+        {
+            var minAssemblyVersion = bindingInfo.ReferencedByAssembly.Min(x => x.ReferencingAssemblyVersion);
+            var maxAssemblyVersion = bindingInfo.ReferencedByAssembly.Max(x => x.ReferencingAssemblyVersion);
+
+            if (minAssemblyVersion == bindingInfo.AssemblyVersion &&
+                maxAssemblyVersion == bindingInfo.AssemblyVersion) continue;
+
+            var oldVersion = minAssemblyVersion?.ToString();
+
+            if (minAssemblyVersion < maxAssemblyVersion)
+            {
+                oldVersion += $"-{maxAssemblyVersion}";
+            }
+
+            sb.AppendLine("  <dependentAssembly>");
+            sb.AppendLine($"    <assemblyIdentity name=\"{bindingInfo.AssemblyName}\" publicKeyToken=\"{bindingInfo.PublicKey}\" culture=\"{bindingInfo.Culture}\" />");
+            sb.AppendLine($"    <bindingRedirect oldVersion=\"{oldVersion}\" newVersion=\"{bindingInfo.AssemblyVersion}\" />");
+            sb.AppendLine("  </dependentAssembly>");
+        }
+
+        sb.AppendLine("</assemblyBinding>");
+
+        return sb.ToString();
+    }
     private static string CreateAssemblyBindings(IEnumerable<AssemblyBindings> bindings)
     {
         var sb = new StringBuilder()
