@@ -1,125 +1,85 @@
 ﻿using System.Diagnostics;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Oleander.Assembly.Binding.Tool.Data;
-using Oleander.Assembly.Binding.Tool.Reports;
-using Westwind.AspNetCore.Markdown;
+using Oleander.Assembly.Binding.Tool.Extensions;
 
 namespace Oleander.Assembly.Binding.Tool;
 
-internal class AssemblyBindingTool(ILoggerFactory loggerFactory)
+internal class AssemblyBindingTool(ILogger logger)
 {
     internal int Resolve(DirectoryInfo directoryInfo)
     {
-
-
         var cache = AssemblyBindingsBuilder.Create(directoryInfo);
         var outPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "out");
 
-
-        //var psi = new ProcessStartInfo
-        //{
-        //    FileName = "https://github.com/Andre-Loetzsch",
-        //    UseShellExecute = true // Wichtig für .NET Core oder .NET 5+
-        //};
-
-        //Process.Start(psi);
-
-
-        if (!Directory.Exists(outPath)) Directory.CreateDirectory(outPath);
-
-        File.WriteAllText(Path.Combine(outPath, "topLevelAssemblies.html"),
-            Markdown.Parse(TopLevelAssemblyReport.Create(cache)));
-
-        File.WriteAllText(Path.Combine(outPath, "referencedByAssemblies.html"),
-            Markdown.Parse(ReferencedByAssembliesReport.Create(cache, true)));
-
-        File.WriteAllText(Path.Combine(outPath, "unresolvedAssemblies.html"),
-            Markdown.Parse(ReferencedByAssembliesReport.Create(cache, false)));
-
-        var assemblyBindingsContents = CreateAssemblyBindings(cache.Values);
-
-        if (!string.IsNullOrEmpty(assemblyBindingsContents))
-            File.WriteAllText(Path.Combine(outPath, "assemblyBindings.xml"), assemblyBindingsContents);
-
-
-
-
-        //var psi = new ProcessStartInfo
-        //{
-        //    FileName = Path.Combine(outPath, "unresolvedAssemblies.html"),
-        //    UseShellExecute = true // Wichtig für .NET Core oder .NET 5+
-        //};
-
-        //Process.Start(psi);
-
-
-
-        return 0;
-    }
-
-    private static string CreateAssemblyBindingsAsXml(IEnumerable<AssemblyBindings> bindings)
-    {
-        var sb = new StringBuilder()
-            .AppendLine("<assemblyBinding xmlns=\"urn:schemas-microsoft-com:asm.v1\">");
-
-        foreach (var bindingInfo in bindings
-                     .Where(x => x is { Resolved: true, ReferencedByAssembly.Count: > 0 })
-                     .OrderBy(x => x.AssemblyName).ToList())
+        if (!Directory.Exists(outPath))
         {
-            var minAssemblyVersion = bindingInfo.ReferencedByAssembly.Min(x => x.ReferencingAssemblyVersion);
-            var maxAssemblyVersion = bindingInfo.ReferencedByAssembly.Max(x => x.ReferencingAssemblyVersion);
-
-            if (minAssemblyVersion == bindingInfo.AssemblyVersion &&
-                maxAssemblyVersion == bindingInfo.AssemblyVersion) continue;
-
-            var oldVersion = minAssemblyVersion?.ToString();
-
-            if (minAssemblyVersion < maxAssemblyVersion)
-            {
-                oldVersion += $"-{maxAssemblyVersion}";
-            }
-
-            sb.AppendLine("  <dependentAssembly>");
-            sb.AppendLine($"    <assemblyIdentity name=\"{bindingInfo.AssemblyName}\" publicKeyToken=\"{bindingInfo.PublicKey}\" culture=\"{bindingInfo.Culture}\" />");
-            sb.AppendLine($"    <bindingRedirect oldVersion=\"{oldVersion}\" newVersion=\"{bindingInfo.AssemblyVersion}\" />");
-            sb.AppendLine("  </dependentAssembly>");
+            logger.LogInformation("Create output directory: {outDir}", outPath);
+            Directory.CreateDirectory(outPath);
         }
 
-        sb.AppendLine("</assemblyBinding>");
+        var topLevelAssembliesFileName = Path.Combine(outPath, "topLevelAssemblies.html");
+        var referencedByAssembliesFileName = Path.Combine(outPath, "referencedByAssemblies.html");
+        var unresolvedAssembliesFileName = Path.Combine(outPath, "unresolvedAssemblies.html");
+        var assemblyBindingsFileName = Path.Combine(outPath, "assemblyBindings.html");
+        var htmlIndexFileName = Path.Combine(outPath, "index.html");
+
+
+        File.WriteAllText(topLevelAssembliesFileName, cache.CreateTopLevelAssemblyReport());
+        File.WriteAllText(referencedByAssembliesFileName, cache.CreateReferencedByAssembliesReport());
+        File.WriteAllText(unresolvedAssembliesFileName, cache.CreateUnresolvedAssembliesReport());
+        File.WriteAllText(assemblyBindingsFileName, cache.CreateAssemblyBindingsReport());
+
+        // TODO cache.CreateOrUpdateApplicationConfigFile(appConfigFileName);
+        //cache.CreateOrUpdateApplicationConfigFile(appConfigFileName);
+
+
+        var links = new Dictionary<string, string>
+        {
+            [topLevelAssembliesFileName] = "Top level assemblies",
+            [referencedByAssembliesFileName] = "Referenced by Assemblies",
+            [unresolvedAssembliesFileName] = "Unresolved assemblies",
+            [assemblyBindingsFileName] = "Assembly bindings"
+        };
+
+        File.WriteAllText(htmlIndexFileName, this.CreateHtmlIndex(links));
+
+        var psi = new ProcessStartInfo
+        {
+            FileName = htmlIndexFileName,
+            UseShellExecute = true // Wichtig für .NET Core oder .NET 5+
+        };
+
+        return Process.Start(psi) == null ? -1 : 0;
+       
+    }
+
+    private string CreateHtmlIndex(IDictionary<string, string> links)
+    {
+        var sb = new StringBuilder()
+            .AppendLine("<!DOCTYPE html>")
+            .AppendLine("<html lang=\"en\">")
+            .AppendLine("<head>")
+            .AppendLine("    <meta charset=\"UTF-8\">")
+            .AppendLine("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
+            .AppendLine("    <title>Meine Webseite</title>")
+            .AppendLine("</head>")
+            .AppendLine("<body>")
+            .AppendLine("    <h1>Willkommen auf meiner Webseite!</h1>")
+            .AppendLine("    <ul>");
+
+        var index = 0;
+
+        foreach (var (key, value) in links)
+        {
+            sb.AppendLine($"        <li><a href=\"{key}\">Link {index++}: {value}</a></li>");
+        }
+
+        sb.AppendLine("    </ul>")
+            .AppendLine("</body>")
+            .AppendLine("</html>");
 
         return sb.ToString();
     }
-    private static string CreateAssemblyBindings(IEnumerable<AssemblyBindings> bindings)
-    {
-        var sb = new StringBuilder()
-            .AppendLine("<assemblyBinding xmlns=\"urn:schemas-microsoft-com:asm.v1\">");
 
-        foreach (var bindingInfo in bindings
-                     .Where(x => x is { Resolved: true, ReferencedByAssembly.Count: > 0 } )
-                     .OrderBy(x => x.AssemblyName).ToList())
-        {
-            var minAssemblyVersion = bindingInfo.ReferencedByAssembly.Min(x => x.ReferencingAssemblyVersion);
-            var maxAssemblyVersion = bindingInfo.ReferencedByAssembly.Max(x => x.ReferencingAssemblyVersion);
-
-            if (minAssemblyVersion == bindingInfo.AssemblyVersion &&
-                maxAssemblyVersion == bindingInfo.AssemblyVersion) continue;
-
-            var oldVersion = minAssemblyVersion?.ToString();
-
-            if (minAssemblyVersion < maxAssemblyVersion)
-            {
-                oldVersion += $"-{maxAssemblyVersion}";
-            }
-
-            sb.AppendLine("  <dependentAssembly>");
-            sb.AppendLine($"    <assemblyIdentity name=\"{bindingInfo.AssemblyName}\" publicKeyToken=\"{bindingInfo.PublicKey}\" culture=\"{bindingInfo.Culture}\" />");
-            sb.AppendLine($"    <bindingRedirect oldVersion=\"{oldVersion}\" newVersion=\"{bindingInfo.AssemblyVersion}\" />");
-            sb.AppendLine("  </dependentAssembly>");
-        }
-
-        sb.AppendLine("</assemblyBinding>");
-
-        return sb.ToString();
-    }
 }

@@ -48,7 +48,7 @@ public class Program
 
         TabCompletions.Logger = logger;
 
-        rootCommand.AddCommand(new AssemblyBindingCommand(logger, assemblyBindingTool));
+        rootCommand.AddCommand(new AssemblyBindingCommand(assemblyBindingTool));
 
         var exitCode = await commandLine.InvokeAsync(args, console);
 

@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Oleander.Assembly.Binding.Tool.Data;
+using Oleander.Assembly.Binding.Tool.Extensions;
 
 namespace Oleander.Assembly.Binding.Tool.Reports;
 

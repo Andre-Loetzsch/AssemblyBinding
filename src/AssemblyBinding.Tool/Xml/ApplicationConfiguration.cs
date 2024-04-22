@@ -1,48 +1,42 @@
 ﻿using Oleander.Assembly.Binding.Tool.Data;
 using System.Xml;
+using Oleander.Assembly.Binding.Tool.Extensions;
 
 namespace Oleander.Assembly.Binding.Tool.Xml;
-internal class ApplicationConfiguration
+internal static class ApplicationConfiguration
 {
-    internal static void UpdateAssemblyBinding(IEnumerable<AssemblyBindings> bindings, string configPath)
+    internal static void CreateOrUpdateAssemblyBinding(IEnumerable<AssemblyBindings> bindings, string appConfigurationFile)
     {
-        // Pfad zur app.config Datei
-
-        // XmlDocument-Instanz erstellen und app.config laden
-        var doc = LoadXmlDocument(configPath);
-
-        // XmlNamespaceManager für das namespace der assemblyBinding Elemente erstellen
-        XmlNamespaceManager manager = new XmlNamespaceManager(doc.NameTable);
+        var doc = LoadOrCreateXmlDocument(appConfigurationFile);
+        var manager = new XmlNamespaceManager(doc.NameTable);
+        
         manager.AddNamespace("asm", "urn:schemas-microsoft-com:asm.v1");
 
 
-        XmlNode runtime = doc.SelectSingleNode("//runtime");
+        var runtime = doc.SelectSingleNode("//runtime");
+        if (runtime == null) throw new NullReferenceException("The runtime element cannot be null!");
 
-        if (runtime == null)
+
+        var assemblyBindingElements = doc.SelectNodes("//asm:assemblyBinding", manager);
+
+        if (assemblyBindingElements != null)
         {
-            // TODO add runtime element
-            return;
-        }
-
-
-        // assemblyBinding Elemente auswählen
-        XmlNodeList assemblyBindingElements = doc.SelectNodes("//asm:assemblyBinding", manager);
-
-        foreach (XmlNode element in assemblyBindingElements)
-        {
-            element.ParentNode.RemoveChild(element);
+            foreach (XmlNode element in assemblyBindingElements)
+            {
+                element.ParentNode?.RemoveChild(element);
+            }
         }
 
         var assemblyBinding = doc.CreateElement("assemblyBinding", "urn:schemas-microsoft-com:asm.v1");
         runtime.AppendChild(assemblyBinding);
 
-
         foreach (var bindingInfo in bindings
                      .Where(x => x is { Resolved: true, ReferencedByAssembly.Count: > 0 })
                      .OrderBy(x => x.AssemblyName).ToList())
         {
-            var minAssemblyVersion = bindingInfo.ReferencedByAssembly.Min(x => x.ReferencingAssemblyVersion);
-            var maxAssemblyVersion = bindingInfo.ReferencedByAssembly.Max(x => x.ReferencingAssemblyVersion);
+
+            if (!bindingInfo.TryGetMinVersion(out var minAssemblyVersion)) continue;
+            if (!bindingInfo.TryGetMaxVersion(out var maxAssemblyVersion)) continue;
 
             if (minAssemblyVersion == bindingInfo.AssemblyVersion &&
                 maxAssemblyVersion == bindingInfo.AssemblyVersion) continue;
@@ -54,78 +48,57 @@ internal class ApplicationConfiguration
                 oldVersion += $"-{maxAssemblyVersion}";
             }
 
-            // Neues dependentAssembly Element hinzufügen
-            XmlElement dependentAssembly = doc.CreateElement("dependentAssembly", "urn:schemas-microsoft-com:asm.v1");
+            var dependentAssembly = doc.CreateElement("dependentAssembly", "urn:schemas-microsoft-com:asm.v1");
             assemblyBinding.AppendChild(dependentAssembly);
 
-            // Neues assemblyIdentity Element hinzufügen
-            XmlElement assemblyIdentity = doc.CreateElement("assemblyIdentity", "urn:schemas-microsoft-com:asm.v1");
+            var assemblyIdentity = doc.CreateElement("assemblyIdentity", "urn:schemas-microsoft-com:asm.v1");
             assemblyIdentity.SetAttribute("name", bindingInfo.AssemblyName);
             assemblyIdentity.SetAttribute("publicKeyToken", bindingInfo.PublicKey);
             assemblyIdentity.SetAttribute("culture", bindingInfo.Culture);
             dependentAssembly.AppendChild(assemblyIdentity);
 
-            // Neues bindingRedirect Element hinzufügen
-            XmlElement bindingRedirect = doc.CreateElement("bindingRedirect", "urn:schemas-microsoft-com:asm.v1");
+            var bindingRedirect = doc.CreateElement("bindingRedirect", "urn:schemas-microsoft-com:asm.v1");
             bindingRedirect.SetAttribute("oldVersion", oldVersion);
             bindingRedirect.SetAttribute("newVersion", bindingInfo.AssemblyVersion.ToString());
             dependentAssembly.AppendChild(bindingRedirect);
         }
 
         // Änderungen speichern
-        doc.Save(configPath);
+        doc.Save(appConfigurationFile);
     }
 
-
-
-
-
-    private static XmlDocument LoadXmlDocument(string configPath)
+    private static XmlDocument LoadOrCreateXmlDocument(string appConfigurationFile)
     {
-        // XmlDocument-Instanz erstellen und app.config laden
-        XmlDocument doc = new XmlDocument();
+        var doc = new XmlDocument();
 
-        if (File.Exists(configPath))
+        if (File.Exists(appConfigurationFile))
         {
-            doc.Load(configPath);
+            doc.Load(appConfigurationFile);
 
-            // Überprüfen, ob das runtime-Element existiert
-            XmlElement runtime = (XmlElement)doc.SelectSingleNode("//runtime");
-            if (runtime == null)
+            if (doc.SelectSingleNode("//runtime") != null) return doc;
+
+            var runtime = doc.CreateElement("runtime");
+
+            if (doc.SelectSingleNode("//configuration") is XmlElement configuration)
             {
-                // runtime-Element hinzufügen
-                runtime = doc.CreateElement("runtime");
-                XmlElement configuration = (XmlElement)doc.SelectSingleNode("//configuration");
-                if (configuration != null)
-                {
-                    configuration.AppendChild(runtime);
-                }
-                else
-                {
-                    // configuration-Element hinzufügen, wenn es nicht existiert
-                    configuration = doc.CreateElement("configuration");
-                    doc.AppendChild(configuration);
-                    configuration.AppendChild(runtime);
-                }
-
-                //// Änderungen speichern
-                //doc.Save(configPath);
+                configuration.AppendChild(runtime);
+            }
+            else
+            {
+                configuration = doc.CreateElement("configuration");
+                doc.AppendChild(configuration);
+                configuration.AppendChild(runtime);
             }
         }
         else
         {
-            // Neue app.config Datei erstellen, wenn sie nicht existiert
             doc.AppendChild(doc.CreateXmlDeclaration("1.0", "UTF-8", null));
-            XmlElement configuration = doc.CreateElement("configuration");
+            var configuration = doc.CreateElement("configuration");
             doc.AppendChild(configuration);
-            XmlElement runtime = doc.CreateElement("runtime");
+            var runtime = doc.CreateElement("runtime");
             configuration.AppendChild(runtime);
-            //doc.Save(configPath);
         }
 
         return doc;
     }
-
-
-
 }

@@ -73,7 +73,7 @@ public class UnitTest1
 
         File.Copy(app1ConfigPath, app1CopyConfigPath, true);
 
-        ApplicationConfiguration.UpdateAssemblyBinding(assemblyBindins, app1CopyConfigPath);
+        ApplicationConfiguration.CreateOrUpdateAssemblyBinding(assemblyBindins, app1CopyConfigPath);
 
     }
 }
