@@ -19,27 +19,32 @@ internal static class AssemblyReferencesTreeReport
 
             sb.Append("## ").AppendLine(item.Key);
 
-            GroupItem(sb, bindings, item.Value, resolved, 0);
+            var text = GroupItem(bindings, item.Value, resolved, 0);
+            if (string.IsNullOrEmpty(text)) continue;
+
+            sb.AppendLine(text);
         }
 
         return sb.ToString();
     }
 
-    private static void GroupItem(StringBuilder sb, IDictionary<string, AssemblyBindings> bindings,
+    private static string GroupItem(IDictionary<string, AssemblyBindings> bindings,
         AssemblyBindings item, bool resolved, int level)
     {
-
+        var sb = new StringBuilder();
         foreach (var refAssembly in item.ReferencedAssembly)
         {
+            var assembliy = bindings.Values
+                .FirstOrDefault(x => x.AssemblyName == refAssembly.AssemblyName &&
+                                     x.Resolved == resolved);
+            if (assembliy == null) continue;
 
-            var assemblies = bindings.Values
-                .Where(x => x.AssemblyName == refAssembly.AssemblyName && 
-                            x.Resolved == resolved)
-                .ToList();
-
-
+            sb.Append("".PadLeft(level, '-'));
+            sb.AppendLine($"{assembliy.BuildFullAssemblyName()}");
+            GroupItem(bindings, assembliy, resolved, level++);
         }
 
+        return sb.ToString();
 
         //var refItems = bindings.Values
         //    .Where(x => x.Resolved == resolved && x.ReferencedByAssembly
