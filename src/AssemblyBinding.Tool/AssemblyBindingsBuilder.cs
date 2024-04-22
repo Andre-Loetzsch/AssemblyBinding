@@ -84,12 +84,19 @@ internal class AssemblyBindingsBuilder
                     cache[key] = refBinding;
                 }
 
+                binding.ReferencedAssembly.Add(
+                    new ReferencingAssembly(
+                        reference. BuildFullAssemblyName(),
+                        reference.Name,
+                        reference.Version,
+                        assemblyDefinition.Name.Version));
+
                 refBinding.ReferencedByAssembly.Add(
                     new ReferencingAssembly(
-                            assemblyDefinition.BuildFullAssemblyName(),
-                            assemblyDefinition.Name.Name,
-                            assemblyDefinition.Name.Version,
-                            reference.Version));
+                        assemblyDefinition.BuildFullAssemblyName(),
+                        assemblyDefinition.Name.Name,
+                        assemblyDefinition.Name.Version,
+                        reference.Version));
             }
         }
         catch (Exception ex)

@@ -42,6 +42,10 @@ internal static class AssemblyBindingsExtensions
         var referencedByAssembliesFileName = Path.Combine(outPath, "referencedByAssemblies.html");
         var unresolvedAssembliesFileName = Path.Combine(outPath, "unresolvedAssemblies.html");
         var assemblyBindingsFileName = Path.Combine(outPath, "assemblyBindings.xml");
+
+        var referencedAssemblyTreeFileName = Path.Combine(outPath, "referencedAssemblyTree.html");
+
+
         var htmlIndexFileName = Path.Combine(outPath, "index.html");
         var links = new Dictionary<string, string>();
 
@@ -74,6 +78,14 @@ internal static class AssemblyBindingsExtensions
             links[assemblyBindingsFileName] = "Assembly bindings";
         }
 
+
+        result = bindings.CreateAssemblyReferencesTreeReport();
+        if (!string.IsNullOrEmpty(result))
+        {
+            File.WriteAllText(referencedAssemblyTreeFileName, result);
+            links[referencedAssemblyTreeFileName] = "Assembly tree dependencies";
+        }
+
         File.WriteAllText(htmlIndexFileName, HtmlIndex.Create(links));
 
         var psi = new ProcessStartInfo
@@ -98,6 +110,10 @@ internal static class AssemblyBindingsExtensions
     internal static string CreateTopLevelAssemblyReport(this IDictionary<string, AssemblyBindings> bindings)
     {
         return Markdown.Parse(TopLevelAssemblyReport.Create(bindings));
+    }
+    internal static string CreateAssemblyReferencesTreeReport(this IDictionary<string, AssemblyBindings> bindings)
+    {
+        return Markdown.Parse(AssemblyReferencesTreeReport.Create(bindings, true));
     }
 
     internal static string CreateAssemblyBindingsReport(this IDictionary<string, AssemblyBindings> bindings)

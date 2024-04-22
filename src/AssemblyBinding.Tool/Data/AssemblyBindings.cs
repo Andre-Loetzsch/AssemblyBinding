@@ -7,7 +7,8 @@ internal class AssemblyBindings(string assemblyName)
 {
     public bool Resolved { get; set; } = false;
     public List<ReferencingAssembly> ReferencedByAssembly { get; } = [];
-    
+    public List<ReferencingAssembly> ReferencedAssembly { get; } = [];
+
     public string AssemblyName { get; } = assemblyName;
     public Version? AssemblyVersion { get; set; }
 
