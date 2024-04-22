@@ -12,7 +12,6 @@ internal static class ApplicationConfiguration
         
         manager.AddNamespace("asm", "urn:schemas-microsoft-com:asm.v1");
 
-
         var runtime = doc.SelectSingleNode("//runtime");
         if (runtime == null) throw new NullReferenceException("The runtime element cannot be null!");
 

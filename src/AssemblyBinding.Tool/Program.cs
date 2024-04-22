@@ -64,7 +64,7 @@ public class Program
 
             if (!arguments.StartsWith("[suggest:"))
             {
-                MsBuildLogFormatter.CreateMSBuildMessage("ABT0", $"assembly-binding {exitCode}", "Main");
+                logger.CreateMSBuildMessage("ABT0", $"assembly-binding {exitCode}", "Main");
             }
         }
         else

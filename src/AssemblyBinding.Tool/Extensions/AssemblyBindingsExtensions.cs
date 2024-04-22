@@ -1,6 +1,8 @@
 ﻿using Oleander.Assembly.Binding.Tool.Data;
+using Oleander.Assembly.Binding.Tool.Html;
 using Oleander.Assembly.Binding.Tool.Reports;
 using Oleander.Assembly.Binding.Tool.Xml;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Westwind.AspNetCore.Markdown;
 
@@ -29,6 +31,60 @@ internal static class AssemblyBindingsExtensions
         return maxVersion != null;
     }
 
+    internal static bool CreateReports(this IDictionary<string, AssemblyBindings> bindings)
+    {
+        var outPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "out");
+        if (Directory.Exists(outPath)) Directory.Delete(outPath, true);
+       
+        Directory.CreateDirectory(outPath);
+
+        var topLevelAssembliesFileName = Path.Combine(outPath, "topLevelAssemblies.html");
+        var referencedByAssembliesFileName = Path.Combine(outPath, "referencedByAssemblies.html");
+        var unresolvedAssembliesFileName = Path.Combine(outPath, "unresolvedAssemblies.html");
+        var assemblyBindingsFileName = Path.Combine(outPath, "assemblyBindings.xml");
+        var htmlIndexFileName = Path.Combine(outPath, "index.html");
+        var links = new Dictionary<string, string>();
+
+        var result = bindings.CreateTopLevelAssemblyReport();
+        if (!string.IsNullOrEmpty(result))
+        {
+            File.WriteAllText(topLevelAssembliesFileName, result);
+            links[topLevelAssembliesFileName] = "Top level assemblies";
+        }
+
+        result = bindings.CreateReferencedByAssembliesReport();
+        if (!string.IsNullOrEmpty(result))
+        {
+            File.WriteAllText(referencedByAssembliesFileName, result);
+            links[referencedByAssembliesFileName] = "Referenced by Assemblies";
+        }
+
+
+        result = bindings.CreateUnresolvedAssembliesReport();
+        if (!string.IsNullOrEmpty(result))
+        {
+            File.WriteAllText(unresolvedAssembliesFileName, result);
+            links[unresolvedAssembliesFileName] = "Unresolved assemblies";
+        }
+
+        result = bindings.CreateAssemblyBindingsReport();
+        if (!string.IsNullOrEmpty(result))
+        {
+            File.WriteAllText(assemblyBindingsFileName, result);
+            links[assemblyBindingsFileName] = "Assembly bindings";
+        }
+
+        File.WriteAllText(htmlIndexFileName, HtmlIndex.Create(links));
+
+        var psi = new ProcessStartInfo
+        {
+            FileName = htmlIndexFileName,
+            UseShellExecute = true // Wichtig für .NET Core oder .NET 5+
+        };
+
+        return Process.Start(psi) != null;
+    }
+
     internal static string CreateReferencedByAssembliesReport(this IDictionary<string, AssemblyBindings> bindings)
     {
         return Markdown.Parse(ReferencedByAssembliesReport.Create(bindings, true));
@@ -46,7 +102,7 @@ internal static class AssemblyBindingsExtensions
 
     internal static string CreateAssemblyBindingsReport(this IDictionary<string, AssemblyBindings> bindings)
     {
-        return Markdown.Parse(AssemblyBindingsReport.Create(bindings.Values));
+        return AssemblyBindingsReport.Create(bindings.Values);
     }
 
     internal static void CreateOrUpdateApplicationConfigFile(this IDictionary<string, AssemblyBindings> bindings, string appConfigurationFile)
