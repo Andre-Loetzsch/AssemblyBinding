@@ -39,7 +39,7 @@
 
   <Target Name="PreBuild_Ubuntu" Condition="'$(OS)' != 'Windows_NT'" AfterTargets="PreBuildEvent">
     <Exec Command="echo $(ProjectDir)App*.config $(TargetDir)" />
-    <Exec Command="cp $(ProjectDir)App*.config $(TargetDir)" />
+    <Exec Command="cp $(ProjectDir)1/App*.config $(TargetDir)" />
   </Target>
 
 </Project>
