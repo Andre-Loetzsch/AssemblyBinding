@@ -9,7 +9,7 @@ internal static class ApplicationConfiguration
     {
         var doc = LoadOrCreateXmlDocument(appConfigurationFile);
         var manager = new XmlNamespaceManager(doc.NameTable);
-        
+
         manager.AddNamespace("asm", "urn:schemas-microsoft-com:asm.v1");
 
         var runtime = doc.SelectSingleNode("//runtime");
@@ -33,14 +33,14 @@ internal static class ApplicationConfiguration
                      .Where(x => x is { Resolved: true, ReferencedByAssembly.Count: > 0 })
                      .OrderBy(x => x.AssemblyName).ToList())
         {
-
+            if (bindingInfo.AssemblyVersion == null) continue;
             if (!bindingInfo.TryGetMinVersion(out var minAssemblyVersion)) continue;
             if (!bindingInfo.TryGetMaxVersion(out var maxAssemblyVersion)) continue;
 
             if (minAssemblyVersion == bindingInfo.AssemblyVersion &&
                 maxAssemblyVersion == bindingInfo.AssemblyVersion) continue;
 
-            var oldVersion = minAssemblyVersion?.ToString();
+            var oldVersion = minAssemblyVersion.ToString();
 
             if (minAssemblyVersion < maxAssemblyVersion)
             {
