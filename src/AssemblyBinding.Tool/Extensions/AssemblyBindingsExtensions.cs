@@ -38,52 +38,60 @@ internal static class AssemblyBindingsExtensions
        
         Directory.CreateDirectory(outPath);
 
+        var assemblyBindingsFileName = Path.Combine(outPath, "assemblyBindings.xml");
         var topLevelAssembliesFileName = Path.Combine(outPath, "topLevelAssemblies.html");
         var referencedByAssembliesFileName = Path.Combine(outPath, "referencedByAssemblies.html");
         var unresolvedAssembliesFileName = Path.Combine(outPath, "unresolvedAssemblies.html");
-        var assemblyBindingsFileName = Path.Combine(outPath, "assemblyBindings.xml");
-
-        var referencedAssemblyTreeFileName = Path.Combine(outPath, "referencedAssemblyTree.html");
-
-
+        var assemblyDependenciesReportFileName = Path.Combine(outPath, "referencedAssemblies.html");
+        var createAssemblyBuildOrderReportFileName = Path.Combine(outPath, "assemblyBuildOrder.html");
         var htmlIndexFileName = Path.Combine(outPath, "index.html");
         var links = new Dictionary<string, string>();
 
-        var result = bindings.CreateTopLevelAssemblyReport();
-        if (!string.IsNullOrEmpty(result))
-        {
-            File.WriteAllText(topLevelAssembliesFileName, result);
-            links[topLevelAssembliesFileName] = "Top level assemblies";
-        }
-
-        result = bindings.CreateReferencedByAssembliesReport();
-        if (!string.IsNullOrEmpty(result))
-        {
-            File.WriteAllText(referencedByAssembliesFileName, result);
-            links[referencedByAssembliesFileName] = "Referenced by Assemblies";
-        }
-
-
-        result = bindings.CreateUnresolvedAssembliesReport();
-        if (!string.IsNullOrEmpty(result))
-        {
-            File.WriteAllText(unresolvedAssembliesFileName, result);
-            links[unresolvedAssembliesFileName] = "Unresolved assemblies";
-        }
-
-        result = bindings.CreateAssemblyBindingsReport();
+        var result = bindings.CreateAssemblyBindingsReport();
         if (!string.IsNullOrEmpty(result))
         {
             File.WriteAllText(assemblyBindingsFileName, result);
             links[assemblyBindingsFileName] = "Assembly bindings";
         }
 
-
-        result = bindings.CreateAssemblyReferencesTreeReport();
+        result = bindings.CreateTopLevelAssemblyReport();
         if (!string.IsNullOrEmpty(result))
         {
-            File.WriteAllText(referencedAssemblyTreeFileName, result);
-            links[referencedAssemblyTreeFileName] = "Assembly tree dependencies";
+            File.WriteAllText(topLevelAssembliesFileName, 
+                HtmlHeadTemplate.Create(result, "2 Top level assemblies"));
+            links[topLevelAssembliesFileName] = "Top level assemblies";
+        }
+
+        result = bindings.CreateReferencedByAssembliesReport();
+        if (!string.IsNullOrEmpty(result))
+        {
+            File.WriteAllText(referencedByAssembliesFileName, 
+                HtmlHeadTemplate.Create(result, "3 Referenced by Assemblies"));
+            links[referencedByAssembliesFileName] = "Referenced by Assemblies";
+        }
+
+        result = bindings.CreateAssemblyDependencyReport();
+        if (!string.IsNullOrEmpty(result))
+        {
+            File.WriteAllText(assemblyDependenciesReportFileName,
+                HtmlHeadTemplate.Create(result, "4 Assembly dependencies"));
+            links[assemblyDependenciesReportFileName] = "Assembly dependencies";
+        }
+
+        result = bindings.CreateUnresolvedAssembliesReport();
+        if (!string.IsNullOrEmpty(result))
+        {
+            File.WriteAllText(unresolvedAssembliesFileName, 
+                HtmlHeadTemplate.Create(result, "5 Unresolved assemblies"));
+            links[unresolvedAssembliesFileName] = "Unresolved assemblies";
+        }
+
+        result = bindings.CreateAssemblyBuildOrderReport();
+        if (!string.IsNullOrEmpty(result))
+        {
+            File.WriteAllText(createAssemblyBuildOrderReportFileName, 
+                HtmlHeadTemplate.Create(result, "6 Assembly build order"));
+            links[createAssemblyBuildOrderReportFileName] = "Assembly build order";
         }
 
         File.WriteAllText(htmlIndexFileName, HtmlIndex.Create(links));
@@ -111,14 +119,19 @@ internal static class AssemblyBindingsExtensions
     {
         return Markdown.Parse(TopLevelAssemblyReport.Create(bindings));
     }
-    internal static string CreateAssemblyReferencesTreeReport(this IDictionary<string, AssemblyBindings> bindings)
+    internal static string CreateAssemblyDependencyReport(this IDictionary<string, AssemblyBindings> bindings)
     {
-        return Markdown.Parse(AssemblyReferencesTreeReport.Create(bindings, true));
+        return Markdown.Parse(AssemblyDependencyReport.Create(bindings));
     }
 
     internal static string CreateAssemblyBindingsReport(this IDictionary<string, AssemblyBindings> bindings)
     {
         return AssemblyBindingsReport.Create(bindings.Values);
+    }
+
+    internal static string CreateAssemblyBuildOrderReport(this IDictionary<string, AssemblyBindings> bindings)
+    {
+        return Markdown.Parse(AssemblyBuildOrderReport.Create(bindings));
     }
 
     internal static void CreateOrUpdateApplicationConfigFile(this IDictionary<string, AssemblyBindings> bindings, string appConfigurationFile)

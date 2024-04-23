@@ -12,7 +12,7 @@ namespace Oleander.Assembly.Binding.Tool.Html
                 .AppendLine("<head>")
                 .AppendLine("    <meta charset=\"UTF-8\">")
                 .AppendLine("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
-                .AppendLine("    <title>Assembly Bindings Report</title>")
+                .AppendLine("    <title>Assembly Bindings Report Index</title>")
                 .AppendLine("</head>")
                 .AppendLine("<body>")
                 .AppendLine("    <h1>Assembly Bindings Report</h1>")
