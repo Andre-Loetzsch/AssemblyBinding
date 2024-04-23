@@ -41,7 +41,7 @@ jobs:
      - name: 'Build and test Oleander.AssemblyBinding.Tool.sln'
        uses: Andre-Loetzsch/actions/buildAndTestSolution@v1
        with:
-         solution: '${{ github.workspace }}\Oleander.AssemblyBinding.Tool.sln'
+         solution: '${{ github.workspace }}\Oleander.Assembly.Binding.Tool.sln'
          version-suffix: ${{ env.VERSION_SUFFIX }}
          packoutdir: ${{ env.PACKOUTDIR }}
          github_token: ${{ secrets.GITHUB_TOKEN }}
