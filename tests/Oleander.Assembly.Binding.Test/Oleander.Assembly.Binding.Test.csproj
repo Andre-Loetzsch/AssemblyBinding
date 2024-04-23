@@ -33,33 +33,17 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="App1.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="App2.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="App2.expected.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="App3.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="App3.expected.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="AppNew.Expected.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
   <Target Name="PreBuild_Windows" Condition="'$(OS)' == 'Windows_NT'" AfterTargets="PreBuildEvent">
     <Exec Command="xcopy &quot;$(ProjectDir)App*.config&quot; &quot;$(TargetDir)&quot; /Y" />
   </Target>
 
   <Target Name="PreBuild_Ubuntu" Condition="'$(OS)' != 'Windows_NT'" AfterTargets="PreBuildEvent">
-    <Exec Command="cp $(ProjectDir)*.config $(TargetDir)" />
+    <Exec Command="cp -v $(ProjectDir)App1.config $(TargetDir)" />
+    <Exec Command="cp -v $(ProjectDir)App2.config $(TargetDir)" />
+    <Exec Command="cp -v $(ProjectDir)App2.expected.config $(TargetDir)" />
+    <Exec Command="cp -v $(ProjectDir)App3.config $(TargetDir)" />
+    <Exec Command="cp -v $(ProjectDir)App3.expected.config $(TargetDir)" />
+    <Exec Command="cp -v $(ProjectDir)AppNew.Expected.config $(TargetDir)" />
   </Target>
 
 </Project>
