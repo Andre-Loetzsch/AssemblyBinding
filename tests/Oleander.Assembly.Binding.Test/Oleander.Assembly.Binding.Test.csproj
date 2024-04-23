@@ -3,8 +3,8 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <AssemblyVersion>0.3.0.1</AssemblyVersion>
-    <SourceRevisionId>c15339396b01e22bb05e2caee3fcf49643ab5f8d</SourceRevisionId>
+    <AssemblyVersion>0.3.0.2</AssemblyVersion>
+    <SourceRevisionId>30b8f856ae23d8d735ffa6dea4fd682ed70358e9</SourceRevisionId>
     <VersionSuffix>beta</VersionSuffix>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version Condition="'$(VersionSuffix)' != ''">$(AssemblyVersion)-$(VersionSuffix)</Version>
@@ -34,16 +34,10 @@
   </ItemGroup>
 
   <Target Name="PreBuild_Windows" Condition="'$(OS)' == 'Windows_NT'" AfterTargets="PreBuildEvent">
-    <Exec Command="xcopy &quot;$(ProjectDir)App*.config&quot; &quot;$(TargetDir)&quot; /Y" />
+    <Exec Command="xcopy &quot;$(ProjectDir)app*.config&quot; &quot;$(TargetDir)&quot; /Y" />
   </Target>
 
   <Target Name="PreBuild_Ubuntu" Condition="'$(OS)' != 'Windows_NT'" AfterTargets="PreBuildEvent">
-    <Exec Command="cp -v $(ProjectDir)App1.config $(TargetDir)" />
-    <Exec Command="cp -v $(ProjectDir)App2.config $(TargetDir)" />
-    <Exec Command="cp -v $(ProjectDir)App2.expected.config $(TargetDir)" />
-    <Exec Command="cp -v $(ProjectDir)App3.config $(TargetDir)" />
-    <Exec Command="cp -v $(ProjectDir)App3.expected.config $(TargetDir)" />
-    <Exec Command="cp -v $(ProjectDir)AppNew.Expected.config $(TargetDir)" />
+    <Exec Command="cp -v $(ProjectDir)app*.config $(TargetDir)" />
   </Target>
-
 </Project>
