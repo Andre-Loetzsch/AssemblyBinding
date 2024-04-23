@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyVersion>0.3.0.0</AssemblyVersion>
-    <SourceRevisionId>0056e115551b99fc121285ab15ba7a3b8dcd3c77</SourceRevisionId>
+    <AssemblyVersion>0.5.0.0</AssemblyVersion>
+    <SourceRevisionId>18115d4399225d672cfd3d6c02ce03faa3a0c352</SourceRevisionId>
     <VersionSuffix>beta</VersionSuffix>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version Condition="'$(VersionSuffix)' != ''">$(AssemblyVersion)-$(VersionSuffix)</Version>
@@ -21,6 +21,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!--<InternalsVisibleTo Include="..\..\tests\AssemblyBinding.Tool.Test\Oleander.Assembly.Binding.Tool.Test.csproj" />-->
+    <InternalsVisibleTo Include="Oleander.Assembly.Binding.Test" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Oleander.Assembly.Comparers" Version="1.0.0" />
     <PackageReference Include="Oleander.Assembly.Versioning.BuildTask" Version="1.0.1.1">
@@ -37,5 +42,12 @@
     <PackageReference Include="Oleander.Extensions.Logging.TextFormatters" Version="1.1.23347.11358" />
     <PackageReference Include="Oleander.Extensions.Logging.TextFormatters.Abstractions" Version="1.1.23347.11358" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageReference Include="Westwind.AspNetCore.Markdown" Version="3.16.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

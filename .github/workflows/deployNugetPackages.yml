@@ -21,7 +21,7 @@ jobs:
         os: [ windows-latest, ubuntu-latest ]
     steps:
      - name: 'Set VERSION_SUFFIX: string.Empty'
-       if: ${{ github.head_ref == 'release') }}
+       if: ${{ github.head_ref == 'release' }}
        shell: bash
        run: echo "VERSION_SUFFIX=" >> $GITHUB_ENV
 
@@ -47,7 +47,7 @@ jobs:
          github_token: ${{ secrets.GITHUB_TOKEN }}
 
      - name: 'delete dotnet-assembly-binding-tool old packages'
-       if: env.VERSION_SUFFIX == 'dev'
+       if: env.VERSION_SUFFIX == 'devX'
        uses: actions/delete-package-versions@v5
        with:
          package-name: 'dotnet-assembly-binding-tool'
@@ -56,7 +56,7 @@ jobs:
          delete-only-pre-release-versions: "true"
 
      - name: 'push nuget packages'
-       if: matrix.os == 'windows-latest' && github.event_name != 'pull_request'
+       if: matrix.os == 'windows-latest' && github.event_name == 'pull_request'
        uses: Andre-Loetzsch/actions/pushNugetPackages@v1
        with:
          outdir: ${{ env.PACKOUTDIR }}

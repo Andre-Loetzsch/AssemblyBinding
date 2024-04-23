@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
+
 // ReSharper disable InconsistentNaming
 
-namespace Oleander.AssemblyBinding.Tool;
+namespace Oleander.Assembly.Binding.Tool;
 
 internal static class MsBuildLogFormatter
 {
@@ -25,18 +24,17 @@ internal static class MsBuildLogFormatter
         return $"{FileName}({line},0) : {subCategory} error {code} : {text}";
     }
 
-
-    public static string CreateMSBuildMessage(string code, string text, int line, string subCategory)
+    public static string CreateMSBuildMessage(this ILogger logger, string code, string text, int line, string subCategory)
     {
-        return CreateMSBuildWarning(code, text, subCategory, line);
+        return CreateMSBuildMessage(logger, code, text, subCategory, line);
     }
 
-    public static string CreateMSBuildMessage(string code, string text, string subCategory, [CallerLineNumber] int line = 0)
+    public static string CreateMSBuildMessage(this ILogger logger, string code, string text, string subCategory, [CallerLineNumber] int line = 0)
     {
         var message = CreateMSBuildMessageFormat(code, text, subCategory, line);
 
         Console.WriteLine(message);
-
+        logger.LogInformation("MSBuildMessage: {message}", message);
         return message;
     }
 

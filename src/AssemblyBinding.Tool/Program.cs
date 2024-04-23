@@ -1,23 +1,20 @@
-﻿using System;
+﻿using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Oleander.Assembly.Binding.Tool.Commands;
+using Oleander.Assembly.Binding.Tool.Options;
 using Oleander.Extensions.DependencyInjection;
 using Oleander.Extensions.Hosting.Abstractions;
 using Oleander.Extensions.Logging;
 using Oleander.Extensions.Logging.Abstractions;
 using Oleander.Extensions.Logging.Providers;
-using System.CommandLine;
-using System.CommandLine.Builder;
-using System.CommandLine.Parsing;
-using System.IO;
-using System.Threading.Tasks;
-using Oleander.AssemblyBinding.Tool.Commands;
-using Oleander.AssemblyBinding.Tool.Options;
 
-namespace Oleander.AssemblyBinding.Tool;
+namespace Oleander.Assembly.Binding.Tool;
 
 public class Program
 {
@@ -51,7 +48,7 @@ public class Program
 
         TabCompletions.Logger = logger;
 
-        rootCommand.AddCommand(new AssemblyBindingCommand(logger, assemblyBindingTool));
+        rootCommand.AddCommand(new AssemblyBindingCommand(assemblyBindingTool));
 
         var exitCode = await commandLine.InvokeAsync(args, console);
 
@@ -67,7 +64,7 @@ public class Program
 
             if (!arguments.StartsWith("[suggest:"))
             {
-                MsBuildLogFormatter.CreateMSBuildMessage("ABT0", $"assembly-binding {exitCode}", "Main");
+                logger.CreateMSBuildMessage("ABT0", $"assembly-binding {exitCode}", "Main");
             }
         }
         else

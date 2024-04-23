@@ -3,7 +3,7 @@ using System.CommandLine.IO;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
-namespace Oleander.AssemblyBinding.Tool;
+namespace Oleander.Assembly.Binding.Tool;
 
 internal class ToolConsole : IConsole
 {

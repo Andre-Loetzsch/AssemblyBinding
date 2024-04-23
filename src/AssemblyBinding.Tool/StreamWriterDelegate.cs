@@ -1,7 +1,6 @@
-﻿using System;
-using System.CommandLine.IO;
+﻿using System.CommandLine.IO;
 
-namespace Oleander.AssemblyBinding.Tool;
+namespace Oleander.Assembly.Binding.Tool;
 
 internal class StreamWriterDelegate(Action<string> writeAction) : IStandardStreamWriter
 {
