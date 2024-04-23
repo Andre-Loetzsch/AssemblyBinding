@@ -1,15 +1,25 @@
-﻿using Oleander.Assembly.Binding.Tool.Data;
+﻿using Microsoft.Extensions.Logging;
+using Oleander.Assembly.Binding.Tool.Data;
+using Oleander.Assembly.Binding.Tool.Extensions;
 using Oleander.Assembly.Comparers.Cecil;
-
+using Oleander.Extensions.Logging.Abstractions;
 namespace Oleander.Assembly.Binding.Tool;
 
-internal static class AssemblyBindingsBuilder
+internal class AssemblyBindingsBuilder
 {
+    private static readonly ILogger logger = LoggerFactory.CreateLogger<AssemblyBindingsBuilder>();
+
     internal static Dictionary<string, AssemblyBindings> Create(DirectoryInfo directoryInfo)
     {
         var cache = new Dictionary<string, AssemblyBindings>();
+        var assembliesInDirectory = new List<FileInfo>();
 
-        foreach (var assemblyFile in directoryInfo.GetFiles("*.exe"))
+        logger.LogInformation("Load files from directory: '{directory}'.", directoryInfo.FullName);
+
+        assembliesInDirectory.AddRange(directoryInfo.GetFiles("*.exe"));
+        assembliesInDirectory.AddRange(directoryInfo.GetFiles("*.dll"));
+
+        foreach (var assemblyFile in assembliesInDirectory)
         {
             try
             {
@@ -17,19 +27,7 @@ internal static class AssemblyBindingsBuilder
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-            }
-        }
-
-        foreach (var assemblyFile in directoryInfo.GetFiles("*.dll"))
-        {
-            try
-            {
-                PrivateCreate(cache, assemblyFile.FullName);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
+                logger.LogError("Loading the file '{fileName}' caused an error: {ex}", assemblyFile.FullName, ex.GetAllMessages());
             }
         }
 
@@ -41,9 +39,14 @@ internal static class AssemblyBindingsBuilder
         try
         {
             var assemblyDefinition = GlobalAssemblyResolver.Instance.GetAssemblyDefinition(path);
-            if (assemblyDefinition == null) return;
+            if (assemblyDefinition == null)
+            {
+                logger.LogInformation("File '{fileName}' is skipped because it is not a dotnet assembly.", Path.GetFileName(path));
+                return;
+            }
 
-            Console.WriteLine(assemblyDefinition.Name.Name);
+            //Console.WriteLine(assemblyDefinition.Name.Name);
+            logger.LogDebug("Collect information from the assembly: '{assemblyName}'.", assemblyDefinition.Name.Name);
 
             var key = assemblyDefinition.BuildAssemblyKey();
 
@@ -81,17 +84,24 @@ internal static class AssemblyBindingsBuilder
                     cache[key] = refBinding;
                 }
 
+                binding.ReferencedAssembly.Add(
+                    new ReferencingAssembly(
+                        reference. BuildFullAssemblyName(),
+                        reference.Name,
+                        reference.Version,
+                        assemblyDefinition.Name.Version));
+
                 refBinding.ReferencedByAssembly.Add(
                     new ReferencingAssembly(
-                            assemblyDefinition.BuildFullAssemblyName(),
-                            assemblyDefinition.Name.Name,
-                            assemblyDefinition.Name.Version, 
-                            reference.Version));
+                        assemblyDefinition.BuildFullAssemblyName(),
+                        assemblyDefinition.Name.Name,
+                        assemblyDefinition.Name.Version,
+                        reference.Version));
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError("Collect information from the assembly '{fileName}' failed! {ex}.", Path.GetFileName(path), ex.GetAllMessages());
         }
     }
 }

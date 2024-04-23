@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Oleander.Assembly.Binding.Tool.Data;
+using Oleander.Assembly.Binding.Tool.Extensions;
 
 namespace Oleander.Assembly.Binding.Tool.Reports;
 
@@ -8,8 +9,8 @@ internal static class TopLevelAssemblyReport
     internal static string Create(IDictionary<string, AssemblyBindings> bindings)
     {
         var sb = new StringBuilder();
-
-        sb.AppendLine("# To Level Assemblies");
+       
+        sb.AppendLine("# Top Level Assemblies:");
 
         foreach (var item in bindings
                      .Where(x => x.Value is { Resolved: true, ReferencedByAssembly.Count: 0 })

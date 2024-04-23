@@ -1,0 +1,1 @@
+﻿global using LoggerFactory = Oleander.Extensions.Logging.Abstractions.LoggerFactory;

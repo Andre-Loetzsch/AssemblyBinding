@@ -1,125 +1,53 @@
-﻿using System.Diagnostics;
-using System.Text;
-using Microsoft.Extensions.Logging;
-using Oleander.Assembly.Binding.Tool.Data;
-using Oleander.Assembly.Binding.Tool.Reports;
-using Westwind.AspNetCore.Markdown;
+﻿using Microsoft.Extensions.Logging;
+using Oleander.Assembly.Binding.Tool.Extensions;
 
 namespace Oleander.Assembly.Binding.Tool;
 
-internal class AssemblyBindingTool(ILoggerFactory loggerFactory)
+internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
 {
-    internal int Resolve(DirectoryInfo directoryInfo)
+    internal int Execute(DirectoryInfo directoryInfo, FileInfo? appConfigFile, bool noReport)
     {
-
+        if (appConfigFile == null && noReport)
+        {
+            logger.CreateMSBuildWarning("ABT1", "No actions were taken! No configuration file was specified and the --no-report option was set to true.", "assembly-binding");
+            return 1;
+        }
 
         var cache = AssemblyBindingsBuilder.Create(directoryInfo);
-        var outPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "out");
 
+        if (!noReport)
+        {
+            try
+            {
+                logger.CreateMSBuildMessage("ABT0", "Create reports", "assembly-binding");
 
-        //var psi = new ProcessStartInfo
-        //{
-        //    FileName = "https://github.com/Andre-Loetzsch",
-        //    UseShellExecute = true // Wichtig für .NET Core oder .NET 5+
-        //};
+                if (!cache.CreateReports())
+                {
+                    logger.CreateMSBuildWarning("ABT2", "Reporting process could not be started!", "assembly-binding");
+                    return 2;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.CreateMSBuildError("ABT3", ex.Message, "assembly-binding");
+                return 3;
+            }
+        }
 
-        //Process.Start(psi);
-
-
-        if (!Directory.Exists(outPath)) Directory.CreateDirectory(outPath);
-
-        File.WriteAllText(Path.Combine(outPath, "topLevelAssemblies.html"),
-            Markdown.Parse(TopLevelAssemblyReport.Create(cache)));
-
-        File.WriteAllText(Path.Combine(outPath, "referencedByAssemblies.html"),
-            Markdown.Parse(ReferencedByAssembliesReport.Create(cache, true)));
-
-        File.WriteAllText(Path.Combine(outPath, "unresolvedAssemblies.html"),
-            Markdown.Parse(ReferencedByAssembliesReport.Create(cache, false)));
-
-        var assemblyBindingsContents = CreateAssemblyBindings(cache.Values);
-
-        if (!string.IsNullOrEmpty(assemblyBindingsContents))
-            File.WriteAllText(Path.Combine(outPath, "assemblyBindings.xml"), assemblyBindingsContents);
-
-
-
-
-        //var psi = new ProcessStartInfo
-        //{
-        //    FileName = Path.Combine(outPath, "unresolvedAssemblies.html"),
-        //    UseShellExecute = true // Wichtig für .NET Core oder .NET 5+
-        //};
-
-        //Process.Start(psi);
-
-
+        if (appConfigFile != null)
+        {
+            try
+            {
+                logger.CreateMSBuildMessage("ABT0", "Update app config file", "assembly-binding");
+                cache.CreateOrUpdateApplicationConfigFile(appConfigFile.FullName);
+            }
+            catch (Exception ex)
+            {
+                logger.CreateMSBuildError("ABT4", ex.Message, "assembly-binding");
+                return 4;
+            }
+        }
 
         return 0;
-    }
-
-    private static string CreateAssemblyBindingsAsXml(IEnumerable<AssemblyBindings> bindings)
-    {
-        var sb = new StringBuilder()
-            .AppendLine("<assemblyBinding xmlns=\"urn:schemas-microsoft-com:asm.v1\">");
-
-        foreach (var bindingInfo in bindings
-                     .Where(x => x is { Resolved: true, ReferencedByAssembly.Count: > 0 })
-                     .OrderBy(x => x.AssemblyName).ToList())
-        {
-            var minAssemblyVersion = bindingInfo.ReferencedByAssembly.Min(x => x.ReferencingAssemblyVersion);
-            var maxAssemblyVersion = bindingInfo.ReferencedByAssembly.Max(x => x.ReferencingAssemblyVersion);
-
-            if (minAssemblyVersion == bindingInfo.AssemblyVersion &&
-                maxAssemblyVersion == bindingInfo.AssemblyVersion) continue;
-
-            var oldVersion = minAssemblyVersion?.ToString();
-
-            if (minAssemblyVersion < maxAssemblyVersion)
-            {
-                oldVersion += $"-{maxAssemblyVersion}";
-            }
-
-            sb.AppendLine("  <dependentAssembly>");
-            sb.AppendLine($"    <assemblyIdentity name=\"{bindingInfo.AssemblyName}\" publicKeyToken=\"{bindingInfo.PublicKey}\" culture=\"{bindingInfo.Culture}\" />");
-            sb.AppendLine($"    <bindingRedirect oldVersion=\"{oldVersion}\" newVersion=\"{bindingInfo.AssemblyVersion}\" />");
-            sb.AppendLine("  </dependentAssembly>");
-        }
-
-        sb.AppendLine("</assemblyBinding>");
-
-        return sb.ToString();
-    }
-    private static string CreateAssemblyBindings(IEnumerable<AssemblyBindings> bindings)
-    {
-        var sb = new StringBuilder()
-            .AppendLine("<assemblyBinding xmlns=\"urn:schemas-microsoft-com:asm.v1\">");
-
-        foreach (var bindingInfo in bindings
-                     .Where(x => x is { Resolved: true, ReferencedByAssembly.Count: > 0 } )
-                     .OrderBy(x => x.AssemblyName).ToList())
-        {
-            var minAssemblyVersion = bindingInfo.ReferencedByAssembly.Min(x => x.ReferencingAssemblyVersion);
-            var maxAssemblyVersion = bindingInfo.ReferencedByAssembly.Max(x => x.ReferencingAssemblyVersion);
-
-            if (minAssemblyVersion == bindingInfo.AssemblyVersion &&
-                maxAssemblyVersion == bindingInfo.AssemblyVersion) continue;
-
-            var oldVersion = minAssemblyVersion?.ToString();
-
-            if (minAssemblyVersion < maxAssemblyVersion)
-            {
-                oldVersion += $"-{maxAssemblyVersion}";
-            }
-
-            sb.AppendLine("  <dependentAssembly>");
-            sb.AppendLine($"    <assemblyIdentity name=\"{bindingInfo.AssemblyName}\" publicKeyToken=\"{bindingInfo.PublicKey}\" culture=\"{bindingInfo.Culture}\" />");
-            sb.AppendLine($"    <bindingRedirect oldVersion=\"{oldVersion}\" newVersion=\"{bindingInfo.AssemblyVersion}\" />");
-            sb.AppendLine("  </dependentAssembly>");
-        }
-
-        sb.AppendLine("</assemblyBinding>");
-
-        return sb.ToString();
     }
 }

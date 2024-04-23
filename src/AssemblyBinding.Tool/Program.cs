@@ -48,7 +48,7 @@ public class Program
 
         TabCompletions.Logger = logger;
 
-        rootCommand.AddCommand(new AssemblyBindingCommand(logger, assemblyBindingTool));
+        rootCommand.AddCommand(new AssemblyBindingCommand(assemblyBindingTool));
 
         var exitCode = await commandLine.InvokeAsync(args, console);
 
@@ -64,7 +64,7 @@ public class Program
 
             if (!arguments.StartsWith("[suggest:"))
             {
-                MsBuildLogFormatter.CreateMSBuildMessage("ABT0", $"assembly-binding {exitCode}", "Main");
+                logger.CreateMSBuildMessage("ABT0", $"assembly-binding {exitCode}", "Main");
             }
         }
         else
