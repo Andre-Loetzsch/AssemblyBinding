@@ -33,6 +33,12 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="app1.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <Target Name="PreBuild_Windows" Condition="'$(OS)' == 'Windows_NT'" AfterTargets="PreBuildEvent">
     <Exec Command="xcopy &quot;$(ProjectDir)app*.config&quot; &quot;$(TargetDir)&quot; /Y" />
   </Target>
