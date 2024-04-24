@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyVersion>0.5.0.0</AssemblyVersion>
-    <SourceRevisionId>18115d4399225d672cfd3d6c02ce03faa3a0c352</SourceRevisionId>
+    <AssemblyVersion>0.5.1.0</AssemblyVersion>
+    <SourceRevisionId>552edfd177eae24a1ede3cb58e0015a580e367c0</SourceRevisionId>
     <VersionSuffix>beta</VersionSuffix>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version Condition="'$(VersionSuffix)' != ''">$(AssemblyVersion)-$(VersionSuffix)</Version>
@@ -21,7 +21,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!--<InternalsVisibleTo Include="..\..\tests\AssemblyBinding.Tool.Test\Oleander.Assembly.Binding.Tool.Test.csproj" />-->
     <InternalsVisibleTo Include="Oleander.Assembly.Binding.Test" />
   </ItemGroup>
 

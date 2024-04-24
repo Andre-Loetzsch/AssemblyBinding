@@ -9,7 +9,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
     {
         if (appConfigFile == null && noReport)
         {
-            logger.CreateMSBuildWarning("ABT1", "No actions were taken! No configuration file was specified and the --no-report option was set to true.", "assembly-binding");
+            logger.CreateMSBuildWarning("ABT2", "No actions were taken! No configuration file was specified and the --no-report option was set to true.", "assembly-binding");
             return 1;
         }
 
@@ -23,13 +23,13 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
 
                 if (!cache.CreateReports())
                 {
-                    logger.CreateMSBuildWarning("ABT2", "Reporting process could not be started!", "assembly-binding");
+                    logger.CreateMSBuildWarning("ABT3", "Reporting process could not be started!", "assembly-binding");
                     return 2;
                 }
             }
             catch (Exception ex)
             {
-                logger.CreateMSBuildError("ABT3", ex.Message, "assembly-binding");
+                logger.CreateMSBuildError("ABT4", ex.Message, "assembly-binding");
                 return 3;
             }
         }
@@ -43,7 +43,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
             }
             catch (Exception ex)
             {
-                logger.CreateMSBuildError("ABT4", ex.Message, "assembly-binding");
+                logger.CreateMSBuildError("ABT5", ex.Message, "assembly-binding");
                 return 4;
             }
         }

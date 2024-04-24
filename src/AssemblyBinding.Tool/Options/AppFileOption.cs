@@ -11,12 +11,9 @@ internal class AppFileOption : Option<FileInfo>
             try
             {
                 var fileInfo = result.GetValueOrDefault<FileInfo>();
-
-                if (fileInfo != null &&!string.Equals(Path.GetExtension(fileInfo.FullName).Trim('\"'), ".config"))
-                {
-                    result.ErrorMessage = $"The file must be an application configuration file! expected: '*.config' current: {fileInfo.FullName}";
-                    return;
-                }
+                if (fileInfo == null || string.Equals(Path.GetExtension(fileInfo.FullName).Trim('\"'), ".config", StringComparison.InvariantCultureIgnoreCase)) return;
+                result.ErrorMessage = $"The file must be an application configuration file! expected: '*.config' current: {fileInfo.FullName}";
+                return;
             }
             catch (Exception ex)
             {

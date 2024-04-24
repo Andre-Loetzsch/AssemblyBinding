@@ -95,7 +95,5 @@ internal static class MsBuildLogFormatter
         logger.LogError(messageFormat, FileName, line, 0, subCategory, "error", code, text);
         return CreateMSBuildError(code, text, subCategory, line);
     }
-
-
     private static string FileName => Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 }
