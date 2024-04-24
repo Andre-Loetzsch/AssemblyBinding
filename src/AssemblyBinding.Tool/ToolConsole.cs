@@ -27,7 +27,7 @@ internal class ToolConsole : IConsole
             this._hasErrors = true;
 
             this._systemConsole.Write(this._output.Length < 1 ?
-                MsBuildLogFormatter.CreateMSBuildErrorFormat("SRG1", msg, "Oleander.StrResGen.Tool") : msg);
+                MsBuildLogFormatter.CreateMSBuildErrorFormat("ABT1", msg, "Oleander.Assembly.Binding.Tool") : msg);
 
             this._output.Append(msg);
         });

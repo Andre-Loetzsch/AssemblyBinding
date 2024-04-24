@@ -37,7 +37,6 @@ public class Program
         var host = builder.Build();
         host.Services.InitLoggerFactory();
 
-
         var logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger<Program>();
         var console = new ToolConsole(logger);
         var assemblyBindingTool = host.Services.GetRequiredService<AssemblyBindingTool>();

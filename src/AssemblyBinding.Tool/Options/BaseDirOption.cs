@@ -6,6 +6,18 @@ internal class BaseDirOption : Option<DirectoryInfo>
 {
     public BaseDirOption() : base(name: "--base-dir", description: "The base application directory")
     {
+        this.AddValidator(result =>
+        {
+            var dirInfo = result.GetValueOrDefault<DirectoryInfo>();
+
+            if (dirInfo == null) return;
+
+            if (!dirInfo.Exists)
+            {
+                result.ErrorMessage = $"Directory does not exists! '{dirInfo.FullName}'";
+            }
+        });
+
         this.AddCompletions(ctx => TabCompletions.FileCompletions(ctx.WordToComplete));
     }
 }
