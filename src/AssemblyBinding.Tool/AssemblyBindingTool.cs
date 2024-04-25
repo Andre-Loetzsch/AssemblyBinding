@@ -13,6 +13,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
             return 1;
         }
 
+        logger.CreateMSBuildMessage("ABT0", "Load assemblies", "assembly-binding");
         var cache = AssemblyBindingsBuilder.Create(directoryInfo);
 
         if (!noReport)

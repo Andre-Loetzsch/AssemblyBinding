@@ -8,7 +8,7 @@ internal static class ReferencedByAssembliesReport
     internal static string Create(IDictionary<string, AssemblyBindings> bindings, bool resolved)
     {
         var sb = new StringBuilder();
-        sb.Append(resolved ? "# Resolved" : "Unresolved").AppendLine(" assembly referenced by:");
+        sb.Append(resolved ? "# Resolved" : "' Unresolved").AppendLine(" assembly referenced by:");
 
         foreach (var item in bindings
                      .Where(x => x.Value.Resolved == resolved)

@@ -1,9 +1,21 @@
 # Oleander.Assembly.Binding
-Assembly binding tool creates or updates the assemblyBinding section of an application configuration file based on the
-assemblies in the bin directory. In addition, some reports are generated to obtain more information about the assemblies used.
+Version conflicts often occur when using NuGet packages in the Dotnet Framework. These then need to be fixed in App.config by adding 
+assembly version redirects. This can quickly become a tedious task. This little tool is intended to provide support. It examines all 
+assembly references in the execution directory and creates the necessary binding redirects from them. It will always redirect to the
+assembly with the highest version. In addition, some reports are generated which provide additional 
+information.
 
-## Install
-dotnet tool install --global dotnet-assembly-binding-tool --version *%version%*
+## Install:
+dotnet tool install dotnet-assembly-binding-tool --global --prerelease
+
+## Update:
+dotnet tool update  dotnet-assembly-binding-tool --global --prerelease
+
+## Install:
+dotnet tool uninstall dotnet-assembly-binding-tool --global
+
+
+
 ## Tool name:
   assembly-binding-tool
 
@@ -18,9 +30,12 @@ dotnet tool install --global dotnet-assembly-binding-tool --version *%version%*
   - resolve&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Resolve assembly bindings*
 
 ### Options:
-  - --base-dir&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*The base application directory*
-  - --app-config&nbsp;&nbsp;&nbsp;*The application configuration file*
-  - --no-report&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*No report will be generated*
-  - -?, -h, --help&nbsp;&nbsp;&nbsp;&nbsp;*Show help and usage information*
+  - **--base-dir**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*The base application directory*
+  - **--app-config**&nbsp;&nbsp;&nbsp;*The application configuration file*
+  - **--no-report**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*No report will be generated*
+  - **-?, -h, --help**&nbsp;&nbsp;&nbsp;&nbsp;*Show help and usage information*
+
+### Example:
+assembly-binding resolve --app-config D:/dev/MyApp/MyApp.exe.config --base-dir D:/dev/MyApp/
 
 
