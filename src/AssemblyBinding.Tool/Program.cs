@@ -47,6 +47,7 @@ public class Program
 
         TabCompletions.Logger = logger;
 
+        logger.CreateMSBuildMessage("ABT0", "assembly-binding-tool started...", "Main");
         rootCommand.AddCommand(new AssemblyBindingCommand(assemblyBindingTool));
 
         var exitCode = await commandLine.InvokeAsync(args, console);

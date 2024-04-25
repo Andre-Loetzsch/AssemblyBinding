@@ -45,7 +45,6 @@ internal class AssemblyBindingsBuilder
                 return;
             }
 
-            //Console.WriteLine(assemblyDefinition.Name.Name);
             logger.LogDebug("Collect information from the assembly: '{assemblyName}'.", assemblyDefinition.Name.Name);
 
             var key = assemblyDefinition.BuildAssemblyKey();
