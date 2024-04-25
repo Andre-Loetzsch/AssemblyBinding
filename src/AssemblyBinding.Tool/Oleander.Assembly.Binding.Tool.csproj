@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyVersion>0.5.1.0</AssemblyVersion>
-    <SourceRevisionId>552edfd177eae24a1ede3cb58e0015a580e367c0</SourceRevisionId>
+    <SourceRevisionId>b7e6ab9098d452227bf798426c25ff7ab69adeb8</SourceRevisionId>
     <VersionSuffix>beta</VersionSuffix>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version Condition="'$(VersionSuffix)' != ''">$(AssemblyVersion)-$(VersionSuffix)</Version>
