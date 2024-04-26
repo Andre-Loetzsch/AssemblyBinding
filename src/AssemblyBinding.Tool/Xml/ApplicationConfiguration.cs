@@ -12,10 +12,7 @@ internal static class ApplicationConfiguration
 
         manager.AddNamespace("asm", "urn:schemas-microsoft-com:asm.v1");
 
-        var runtime = doc.SelectSingleNode("//runtime");
-        if (runtime == null) throw new NullReferenceException("The runtime element cannot be null!");
-
-
+        var runtime = doc.SelectSingleNode("//runtime") ?? throw new NullReferenceException("The runtime element cannot be null!");
         var assemblyBindingElements = doc.SelectNodes("//asm:assemblyBinding", manager);
 
         if (assemblyBindingElements != null)
@@ -40,11 +37,11 @@ internal static class ApplicationConfiguration
             if (minAssemblyVersion == bindingInfo.AssemblyVersion &&
                 maxAssemblyVersion == bindingInfo.AssemblyVersion) continue;
 
-            var oldVersion = minAssemblyVersion.ToString();
+            var oldVersion = minAssemblyVersion.ToVersionString();
 
             if (minAssemblyVersion < maxAssemblyVersion)
             {
-                oldVersion += $"-{maxAssemblyVersion}";
+                oldVersion += $"-{maxAssemblyVersion.ToVersionString()}";
             }
 
             var dependentAssembly = doc.CreateElement("dependentAssembly", "urn:schemas-microsoft-com:asm.v1");
@@ -58,7 +55,7 @@ internal static class ApplicationConfiguration
 
             var bindingRedirect = doc.CreateElement("bindingRedirect", "urn:schemas-microsoft-com:asm.v1");
             bindingRedirect.SetAttribute("oldVersion", oldVersion);
-            bindingRedirect.SetAttribute("newVersion", bindingInfo.AssemblyVersion.ToString());
+            bindingRedirect.SetAttribute("newVersion", bindingInfo.AssemblyVersion.ToVersionString());
             dependentAssembly.AppendChild(bindingRedirect);
         }
 
