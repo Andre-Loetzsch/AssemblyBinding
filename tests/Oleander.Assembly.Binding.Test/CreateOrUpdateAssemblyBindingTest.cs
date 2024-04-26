@@ -17,7 +17,8 @@ public class CreateOrUpdateAssemblyBindingTest
             Resolved = true
         };
 
-        ab1.ReferencedByAssembly.Add(new ReferencingAssembly("x.y", "x", new Version(), new Version(1, 9, 47, 0)));
+        // Version 3 digit format!
+        ab1.ReferencedByAssembly.Add(new ReferencingAssembly("x.y", "x", new Version(), new Version(1, 9, 47)));
         ab1.ReferencedByAssembly.Add(new ReferencingAssembly("x.y", "x", new Version(), new Version(2, 29, 47, 0)));
 
         var assemblyBindings = new List<AssemblyBindings> { ab1 };
@@ -32,6 +33,7 @@ public class CreateOrUpdateAssemblyBindingTest
         Assert.Equal(File.ReadAllText(expectedConfigPath), File.ReadAllText(appCopyConfigPath));
     }
 
+
     [Fact]
     
     public void TestCreateConfigurationAndRuntimeXmlElement()
@@ -43,7 +45,7 @@ public class CreateOrUpdateAssemblyBindingTest
             Culture = "de-De",
             Resolved = true
         };
-
+        
         ab1.ReferencedByAssembly.Add(new ReferencingAssembly("x.y", "x", new Version(), new Version(1, 9, 47, 0)));
         ab1.ReferencedByAssembly.Add(new ReferencingAssembly("x.y", "x", new Version(), new Version(2, 29, 47, 0)));
 
@@ -68,7 +70,8 @@ public class CreateOrUpdateAssemblyBindingTest
         };
 
         ab1.ReferencedByAssembly.Add(new ReferencingAssembly("x.y", "x", new Version(), new Version(1, 9, 47, 0)));
-        ab1.ReferencedByAssembly.Add(new ReferencingAssembly("x.y", "x", new Version(), new Version(2, 29, 47, 0)));
+        // Version 3 digit format!
+        ab1.ReferencedByAssembly.Add(new ReferencingAssembly("x.y", "x", new Version(), new Version(2, 29, 47)));
 
         var assemblyBindings = new List<AssemblyBindings> { ab1 };
         var expectedConfigPath = Path.Combine(AppContext.BaseDirectory, "app2.expected.config");
@@ -91,8 +94,10 @@ public class CreateOrUpdateAssemblyBindingTest
             Resolved = true
         };
 
-        ab1.ReferencedByAssembly.Add(new ReferencingAssembly("x.y", "x", new Version(), new Version(1, 9, 47, 0)));
-        ab1.ReferencedByAssembly.Add(new ReferencingAssembly("x.y", "x", new Version(), new Version(2, 29, 47, 0)));
+        // Version 3 digit format!
+        ab1.ReferencedByAssembly.Add(new ReferencingAssembly("x.y", "x", new Version(), new Version(1, 9, 47)));
+        // Version 3 digit format!
+        ab1.ReferencedByAssembly.Add(new ReferencingAssembly("x.y", "x", new Version(), new Version(2, 29, 47)));
 
         var assemblyBindings = new List<AssemblyBindings> { ab1 };
         var expectedConfigPath = Path.Combine(AppContext.BaseDirectory, "app3.expected.config");
