@@ -5,7 +5,7 @@ using Oleander.Assembly.Binding.Tool.Extensions;
 namespace Oleander.Assembly.Binding.Tool.Xml;
 internal static class ApplicationConfiguration
 {
-    internal static void CreateOrUpdateAssemblyBinding(IEnumerable<AssemblyBindings> bindings, string appConfigurationFile)
+    internal static void CreateOrUpdateAssemblyBinding(List<AssemblyBindings> bindings, string appConfigurationFile)
     {
         var doc = LoadOrCreateXmlDocument(appConfigurationFile);
         var manager = new XmlNamespaceManager(doc.NameTable);
@@ -21,6 +21,12 @@ internal static class ApplicationConfiguration
             {
                 element.ParentNode?.RemoveChild(element);
             }
+        }
+
+        if (bindings.Count == 0)
+        {
+            doc.Save(appConfigurationFile);
+            return;
         }
 
         var assemblyBinding = doc.CreateElement("assemblyBinding", "urn:schemas-microsoft-com:asm.v1");
@@ -62,14 +68,33 @@ internal static class ApplicationConfiguration
         // Änderungen speichern
         doc.Save(appConfigurationFile);
     }
+    internal static bool IsAppConfiFile(string appConfigurationFile)
+    {
+        if (!File.Exists(appConfigurationFile) ||
+            (!File.Exists(appConfigurationFile.Substring(0, appConfigurationFile.Length - 7)) &&
+             !string.Equals(Path.GetFileName(appConfigurationFile), "app.config", StringComparison.InvariantCultureIgnoreCase)))
+            return false;
 
+        var doc = new XmlDocument();
+
+        try
+        {
+            doc.Load(appConfigurationFile);
+        }
+        catch (XmlException)
+        {
+            return false;
+        }
+
+        return doc.SelectSingleNode("//configuration") != null;
+    }
     private static XmlDocument LoadOrCreateXmlDocument(string appConfigurationFile)
     {
         var doc = new XmlDocument();
 
         if (File.Exists(appConfigurationFile))
         {
-            doc.Load(appConfigurationFile);
+             doc.Load(appConfigurationFile);
 
             if (doc.SelectSingleNode("//runtime") != null) return doc;
 

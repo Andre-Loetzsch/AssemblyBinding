@@ -108,4 +108,16 @@ public class CreateOrUpdateAssemblyBindingTest
         Assert.True(File.Exists(appCopyConfigPath));
         Assert.Equal(File.ReadAllText(expectedConfigPath), File.ReadAllText(appCopyConfigPath));
     }
+
+    [Fact]
+    public void TestRemoveAssemblyBindingsFromConfigFile()
+    {
+        var expectedConfigPath = Path.Combine(AppContext.BaseDirectory, "app5.expected.config");
+        var appCopyConfigPath = Path.Combine(AppContext.BaseDirectory, "app5.config");
+
+        ApplicationConfiguration.CreateOrUpdateAssemblyBinding(new List<AssemblyBindings>(), appCopyConfigPath);
+
+        Assert.True(File.Exists(appCopyConfigPath));
+        Assert.Equal(File.ReadAllText(expectedConfigPath), File.ReadAllText(appCopyConfigPath));
+    }
 }

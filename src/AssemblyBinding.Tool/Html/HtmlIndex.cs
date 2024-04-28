@@ -4,7 +4,7 @@ namespace Oleander.Assembly.Binding.Tool.Html
 {
     internal class HtmlIndex
     {
-        internal static string Create(IDictionary<string, string> links)
+        internal static string Create(IDictionary<string, string> links, int index)
         {
             var sb = new StringBuilder()
                 .AppendLine("<!DOCTYPE html>")
@@ -19,11 +19,11 @@ namespace Oleander.Assembly.Binding.Tool.Html
                 .AppendLine("    <h2>Select a report:</h2>")
                 .AppendLine("    <ul>");
 
-            var index = 1;
+            var i = 1;
 
             foreach (var (key, value) in links)
             {
-                sb.AppendLine($"          <li><a    href=\"{key}\" target=\"_blank\" rel=\"noopener noreferrer\">{index++}: {value}</a></li>");
+                sb.AppendLine($"          <li><a    href=\"{key}\" target=\"_blank\" rel=\"noopener noreferrer\">{index}.{i++}: {value}</a></li>");
             }
 
             sb.AppendLine("    </ul>")

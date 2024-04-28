@@ -4,7 +4,7 @@ namespace Oleander.Assembly.Binding.Tool.Html;
 
 internal class HtmlHeadTemplate
 {
-    internal static string Create(string innerHtml, string title)
+    internal static string Create(string innerHtml, string title, int index)
     {
         var sb = new StringBuilder()
             .AppendLine("<!DOCTYPE html>")
@@ -12,7 +12,7 @@ internal class HtmlHeadTemplate
             .AppendLine("<head>")
             .AppendLine("    <meta charset=\"UTF-8\">")
             .AppendLine("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
-            .AppendLine($"    <title>{title}</title>")
+            .AppendLine($"    <title>{index} {title}</title>")
             .AppendLine("</head>")
             .AppendLine("<body>")
             .AppendLine(innerHtml)
