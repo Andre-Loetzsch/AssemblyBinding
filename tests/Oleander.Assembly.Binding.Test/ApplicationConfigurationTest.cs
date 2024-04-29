@@ -31,7 +31,7 @@ public class ApplicationConfigurationTest
     public void TestAppConfig()
     {
         var myAppPath = Path.Combine(AppContext.BaseDirectory, "MyApp");
-        var appConfigPath = Path.Combine(AppContext.BaseDirectory, "app.config");
+        var appConfigPath = Path.Combine(AppContext.BaseDirectory, "app2.config");
         var myAppConfigPath = Path.Combine(myAppPath, "app.config");
 
         if (!Directory.Exists(myAppPath)) Directory.CreateDirectory(myAppPath);
@@ -43,8 +43,8 @@ public class ApplicationConfigurationTest
     [Fact]
     public void TestValidConfigurationFile()
     {
-        var appConfigPath = Path.Combine(AppContext.BaseDirectory, "app2.config");
-        var appPath = Path.Combine(AppContext.BaseDirectory, "app2");
+        var appConfigPath = Path.Combine(AppContext.BaseDirectory, "app2.exe.config");
+        var appPath = Path.Combine(AppContext.BaseDirectory, "app2.exe");
         if (File.Exists(appPath)) File.Delete(appPath);
 
         Assert.False(ApplicationConfiguration.IsAppConfigFile(appConfigPath));

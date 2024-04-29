@@ -71,7 +71,7 @@ internal static class ApplicationConfiguration
     internal static bool IsAppConfigFile(string appConfigurationFile)
     {
         if (!File.Exists(appConfigurationFile) ||
-            (!File.Exists(appConfigurationFile.Substring(0, appConfigurationFile.Length - 7)) &&
+            (!File.Exists(string.Concat(appConfigurationFile.Substring(0, appConfigurationFile.Length - 10), "exe")) &&
              !string.Equals(Path.GetFileName(appConfigurationFile), "app.config", StringComparison.InvariantCultureIgnoreCase)))
             return false;
 

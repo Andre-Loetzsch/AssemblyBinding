@@ -133,10 +133,16 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
                 .Select(x => new ToDo(x.Directory!, x, index++))
                 .ToList();
 
-            foreach (var appConfig in toDoList
-                .Where(x => x.AppConfigFileInfo != null && string.Equals(x.AppConfigFileInfo.Name, "app.config", StringComparison.InvariantCultureIgnoreCase)).ToList())
+            foreach (var appConfigToDo in toDoList
+                .Where(x => x.AppConfigFileInfo != null && 
+                            string.Equals(x.AppConfigFileInfo.Name, "app.config", StringComparison.InvariantCultureIgnoreCase)).ToList())
             {
                 DirectoryInfo? baseDir = null;
+
+                var projectFileInfo = appConfigToDo.AppConfigFileInfo!.Directory!.GetFiles("*.csproj").FirstOrDefault();
+                if (projectFileInfo == null) continue;
+
+                var exeFileName = string.Concat(projectFileInfo.Name.Substring(0, projectFileInfo.Name.Length - 7), "exe");
 
                 foreach (var toDo in toDoList)
                 {
@@ -155,12 +161,20 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
 
                 if (baseDir == null)
                 {
-                    toDoList.Remove(appConfig);
-                    logger.CreateMSBuildWarning("ABT2", $"Configuration file '{appConfig.AppConfigFileInfo?.FullName}' skipped because no bin directory was found!", "assembly-binding");
+                    toDoList.Remove(appConfigToDo);
+                    logger.CreateMSBuildWarning("ABT2", $"Configuration file '{appConfigToDo.AppConfigFileInfo?.FullName}' skipped because no bin directory was found!", "assembly-binding");
                     continue;
                 }
 
-                appConfig.BaseDirInfo = baseDir;
+                if (!File.Exists(Path.Combine(baseDir.FullName, exeFileName)))
+                {
+                    toDoList.Remove(appConfigToDo);
+                    logger.CreateMSBuildWarning("ABT2", $"Configuration file '{appConfigToDo.AppConfigFileInfo?.FullName}' skipped because no bin directory was found!", "assembly-binding")??;
+
+                    continue;
+                }
+
+                appConfigToDo.BaseDirInfo = baseDir;
 
             }
             return toDoList;
