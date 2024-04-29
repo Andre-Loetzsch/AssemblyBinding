@@ -21,4 +21,14 @@ internal class HtmlHeadTemplate
 
         return sb.ToString();
     }
+
+    //internal static string CreateEmbeddedMml(string xml)
+    //{
+    //    var sb = new StringBuilder()
+    //        .AppendLine("<xmp>")
+    //        .AppendLine("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>")
+    //        .AppendLine(xml)
+    //        .AppendLine("</xmp>");
+    //    return sb.ToString();
+    //}
 }
