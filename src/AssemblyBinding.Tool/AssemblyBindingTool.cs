@@ -17,7 +17,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         {
             if (appConfigFileInfo != null)
             {
-                logger.CreateMSBuildError("ABT2", "Option --app-config is not supported when --recursive is true!", "assembly-binding");
+                logger.CreateMSBuildError("ABT1", "Option --app-config is not supported when --recursive is true!", "assembly-binding");
                 return 1;
             }
 
@@ -59,7 +59,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
                 if (baseDir == null)
                 {
                     toDoList.Remove(appConfig);
-                    logger.CreateMSBuildWarning("ABT3", $"Configuration file '{appConfig.AppConfigFileInfo?.FullName}' skipped because no bin directory was found!", "assembly-binding");
+                    logger.CreateMSBuildWarning("ABT2", $"Configuration file '{appConfig.AppConfigFileInfo?.FullName}' skipped because no bin directory was found!", "assembly-binding");
                     continue;
                 }
 
@@ -72,7 +72,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
             if (appConfigFileInfo == null && noReport)
             {
                 logger.CreateMSBuildWarning("ABT3", "No actions were taken! No configuration file was specified and the --no-report option was set to true.", "assembly-binding");
-                return 2;
+                return 3;
             }
 
             toDoList.Add(new ToDo(baseDirInfo, appConfigFileInfo, 0));
@@ -108,14 +108,15 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
             File.WriteAllText(htmlIndexFileName, HtmlIndex.Create(links, "Assembly binding reports", "Assembly binding index", "Select a link to get more information"));
         }
 
+        if (string.IsNullOrEmpty(htmlIndexFileName)) return 0;
+
         var psi = new ProcessStartInfo
         {
             FileName = htmlIndexFileName,
             UseShellExecute = true // Wichtig für .NET Core oder .NET 5+
         };
 
-        if (Process.Start(psi) == null) return -1;
-        return result;
+        return Process.Start(psi) == null ? 4 : result;
     }
 
     private int InnerExecute(ToDo toDo, int maxIndex, bool noReport)
@@ -123,7 +124,11 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         logger.CreateMSBuildMessage("ABT0", $"Load assemblies {toDo.Index +1}/{maxIndex}", "assembly-binding");
         var cache = AssemblyBindingsBuilder.Create(toDo.BaseDirInfo);
 
-        if (cache.Count == 0) return 0;
+        if (cache.Count == 0)
+        {
+            logger.CreateMSBuildWarning("ABT4", $"Directory '{toDo.BaseDirInfo}' does not contain any assemblies!", "assembly-binding");
+            return 0;
+        }
 
         if (!noReport)
         {
@@ -135,7 +140,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
             catch (Exception ex)
             {
                 logger.CreateMSBuildError("ABT5", ex.Message, "assembly-binding");
-                return 4;
+                return 5;
             }
         }
 
@@ -150,7 +155,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
             catch (Exception ex)
             {
                 logger.CreateMSBuildError("ABT6", ex.Message, "assembly-binding");
-                return 5;
+                return 6;
             }
         }
 

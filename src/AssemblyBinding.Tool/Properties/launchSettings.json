@@ -2,7 +2,7 @@
   "profiles": {
     "Oleander.AssemblyBinding.Tool D316IT012": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --base-dir D:\\dev\\Tentakel\\dependencies\\dev-André\\Debug --no-report false --app-config D:\\App.config"
+      "commandLineArgs": "resolve --base-dir D:\\dev\\Tentakel\\Tentakel.W16Production --no-report false --app-config D:\\\\App.config"
     },
     "Oleander.AssemblyBinding.Tool D316IT012 --recursive": {
       "commandName": "Project",
