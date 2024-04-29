@@ -4,6 +4,10 @@
       "commandName": "Project",
       "commandLineArgs": "resolve --base-dir D:\\dev\\Tentakel\\dependencies\\dev-André\\Debug --no-report false --app-config D:\\App.config"
     },
+    "Oleander.AssemblyBinding.Tool D316IT012 --recursive": {
+      "commandName": "Project",
+      "commandLineArgs": "resolve --base-dir D:\\dev\\Tentakel_20240429\\ --recursive"
+    },
     "Oleander.AssemblyBinding.Tool TargetDir": {
       "commandName": "Project",
       "commandLineArgs": "resolve --base-dir D:\\dev\\git\\oleander\\AssemblyBinding\\src\\AssemblyBinding.Tool\\bin\\Debug\\net8.0"

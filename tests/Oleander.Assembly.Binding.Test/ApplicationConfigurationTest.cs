@@ -13,7 +13,7 @@ public class ApplicationConfigurationTest
         if (File.Exists(appConfigPath)) File.Delete(appConfigPath); 
         if (!File.Exists(appPath)) File.WriteAllText(appPath, "my application");
 
-        Assert.False(ApplicationConfiguration.IsAppConfiFile(appConfigPath));
+        Assert.False(ApplicationConfiguration.IsAppConfigFile(appConfigPath));
     }
 
     [Fact]
@@ -24,7 +24,7 @@ public class ApplicationConfigurationTest
         
         if (!File.Exists(appPath)) File.WriteAllText(appPath, "my application");
 
-        Assert.False(ApplicationConfiguration.IsAppConfiFile(appConfigPath));
+        Assert.False(ApplicationConfiguration.IsAppConfigFile(appConfigPath));
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public class ApplicationConfigurationTest
         if (!Directory.Exists(myAppPath)) Directory.CreateDirectory(myAppPath);
         File.Copy(appConfigPath, myAppConfigPath, true);
         
-        Assert.True(ApplicationConfiguration.IsAppConfiFile(myAppConfigPath));
+        Assert.True(ApplicationConfiguration.IsAppConfigFile(myAppConfigPath));
     }
 
     [Fact]
@@ -47,9 +47,9 @@ public class ApplicationConfigurationTest
         var appPath = Path.Combine(AppContext.BaseDirectory, "app2");
         if (File.Exists(appPath)) File.Delete(appPath);
 
-        Assert.False(ApplicationConfiguration.IsAppConfiFile(appConfigPath));
+        Assert.False(ApplicationConfiguration.IsAppConfigFile(appConfigPath));
 
         File.WriteAllText(appPath, "my application");
-        Assert.True(ApplicationConfiguration.IsAppConfiFile(appConfigPath));
+        Assert.True(ApplicationConfiguration.IsAppConfigFile(appConfigPath));
     }
 }

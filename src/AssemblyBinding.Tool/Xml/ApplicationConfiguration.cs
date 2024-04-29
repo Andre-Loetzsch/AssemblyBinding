@@ -68,7 +68,7 @@ internal static class ApplicationConfiguration
         // Änderungen speichern
         doc.Save(appConfigurationFile);
     }
-    internal static bool IsAppConfiFile(string appConfigurationFile)
+    internal static bool IsAppConfigFile(string appConfigurationFile)
     {
         if (!File.Exists(appConfigurationFile) ||
             (!File.Exists(appConfigurationFile.Substring(0, appConfigurationFile.Length - 7)) &&
