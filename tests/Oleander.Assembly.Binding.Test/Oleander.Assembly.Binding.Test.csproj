@@ -3,8 +3,8 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <AssemblyVersion>0.4.0.0</AssemblyVersion>
-    <SourceRevisionId>4cbbf32ebcba9c221c473d522cc34769e5c22b14</SourceRevisionId>
+    <AssemblyVersion>0.4.0.1</AssemblyVersion>
+    <SourceRevisionId>357d8d43c530aca3a15cee650272b7520dea7967</SourceRevisionId>
     <VersionSuffix>beta</VersionSuffix>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version Condition="'$(VersionSuffix)' != ''">$(AssemblyVersion)-$(VersionSuffix)</Version>
