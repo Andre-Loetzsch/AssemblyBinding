@@ -129,7 +129,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
 
         if (recursive)
         {
-            logger.CreateMSBuildMessage("ABT0", "Data is processed. This may take some time.", "assembly-binding");
+            logger.CreateMSBuildMessage("ABT0", "Processing data. This could take a while...", "assembly-binding");
 
             toDoList = baseDirInfo.GetFiles("*.config", enumerationOptions)
                 .Where(x => x.Directory != null &&
