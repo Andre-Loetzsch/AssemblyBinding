@@ -6,7 +6,7 @@
     },
     "Oleander.AssemblyBinding.Tool D316IT012 --recursive": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --base-dir D:\\dev\\Tentakel_20240429\\ --recursive"
+      "commandLineArgs": "resolve --base-dir D:\\dev\\Tentakel_20240429\\ --recursive --branch dev-André"
     },
     "Oleander.AssemblyBinding.Tool TargetDir": {
       "commandName": "Project",
