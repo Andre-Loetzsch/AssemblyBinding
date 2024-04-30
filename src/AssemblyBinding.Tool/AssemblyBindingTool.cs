@@ -9,7 +9,7 @@ namespace Oleander.Assembly.Binding.Tool;
 
 internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
 {
-    internal int Execute(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, bool recursive, bool noReport)
+    internal int Execute(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, bool recursive, bool noReport, string branch)
     {
         if (recursive)
         {
@@ -26,14 +26,19 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
                 logger.CreateMSBuildWarning("ABT2", "No actions were taken! No configuration file was specified and the --no-report option was set to true.", "assembly-binding");
                 return 2;
             }
+
+            if (!string.IsNullOrEmpty(branch))
+            {
+                logger.CreateMSBuildWarning("ABT2", "The --branch option is ignored because it is only valid with the --recursive true option", "assembly-binding");
+            }
         }
 
-        var toDoList = this.CreateToDoList(baseDirInfo, appConfigFileInfo, recursive);
+        var toDoList = this.CreateToDoList(baseDirInfo, appConfigFileInfo, branch, recursive);
         var result = 0;
 
-        foreach (var toDo in toDoList)
+        for (var i = 0; i < toDoList.Count; i++)
         {
-            var innerResult = this.InnerExecute(toDo, toDoList.Count, noReport);
+            var innerResult = this.InnerExecute(toDoList[i], i, toDoList.Count, noReport);
             if (innerResult > 0) result = innerResult;
         }
 
@@ -70,14 +75,14 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         return Process.Start(psi) == null ? 4 : result;
     }
 
-    private int InnerExecute(ToDo toDo, int maxIndex, bool noReport)
+    private int InnerExecute(ToDo toDo, int index, int maxIndex, bool noReport)
     {
-        logger.CreateMSBuildMessage("ABT0", $"Load assemblies {toDo.Index + 1}/{maxIndex}", "assembly-binding");
+        logger.CreateMSBuildMessage("ABT0", $"Load assemblies: {toDo.AppConfigFileInfo?.Directory?.Name} {index + 1}/{maxIndex}", "assembly-binding");
         var cache = AssemblyBindingsBuilder.Create(toDo.BaseDirInfo);
 
         if (cache.Count == 0)
         {
-            logger.CreateMSBuildWarning("ABT3", $"Directory '{toDo.BaseDirInfo}' does not contain any assemblies!", "assembly-binding");
+            logger.CreateMSBuildWarning("ABT2", $"Directory '{toDo.BaseDirInfo}' does not contain any assemblies!", "assembly-binding");
             return 0;
         }
 
@@ -86,11 +91,11 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
             try
             {
                 logger.CreateMSBuildMessage("ABT0", "Create reports", "assembly-binding");
-                toDo.HtmlIndexPage = cache.CreateReports(toDo.AppConfigFileInfo, toDo.Index);
+                toDo.HtmlIndexPage = cache.CreateReports(toDo.AppConfigFileInfo);
             }
             catch (Exception ex)
             {
-                logger.CreateMSBuildError("ABT4", ex.Message, "assembly-binding");
+                logger.CreateMSBuildError("ABT1", ex.Message, "assembly-binding");
                 return 4;
             }
         }
@@ -99,13 +104,13 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         {
             try
             {
-                logger.CreateMSBuildMessage("ABT0", $"Update app config file: {toDo.AppConfigFileInfo.Name}", "assembly-binding");
-                toDo.AppConfigFileInfo.IsReadOnly = false;
+                logger.CreateMSBuildMessage("ABT0", $"Update app config file: {toDo.AppConfigFileInfo?.Directory?.Name}{Path.DirectorySeparatorChar}{toDo.AppConfigFileInfo?.Name}", "assembly-binding");
+                toDo.AppConfigFileInfo!.IsReadOnly = false;
                 cache.CreateOrUpdateApplicationConfigFile(toDo.AppConfigFileInfo.FullName);
             }
             catch (Exception ex)
             {
-                logger.CreateMSBuildError("ABT5", ex.Message, "assembly-binding");
+                logger.CreateMSBuildError("ABT1", ex.Message, "assembly-binding");
                 return 5;
             }
         }
@@ -113,74 +118,69 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         return 0;
     }
 
-    private List<ToDo> CreateToDoList(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, bool recursive)
+    private List<ToDo> CreateToDoList(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, string branch, bool recursive)
     {
         var toDoList = new List<ToDo>();
+        var enumerationOptions = new EnumerationOptions
+        {
+            MatchCasing = MatchCasing.CaseInsensitive,
+            RecurseSubdirectories = true
+        };
 
         if (recursive)
         {
-            var index = 0;
+            logger.CreateMSBuildMessage("ABT0", "Data is processed. This may take some time.", "assembly-binding");
 
-            toDoList = baseDirInfo.GetFiles("*.config",
-                new EnumerationOptions
-                {
-                    MatchCasing = MatchCasing.CaseInsensitive,
-                    RecurseSubdirectories = true
-                })
+            toDoList = baseDirInfo.GetFiles("*.config", enumerationOptions)
                 .Where(x => x.Directory != null &&
                             !x.Directory.FullName.Contains($"{Path.DirectorySeparatorChar}obj", StringComparison.InvariantCultureIgnoreCase) &&
                             ApplicationConfiguration.IsAppConfigFile(x.FullName))
-                .Select(x => new ToDo(x.Directory!, x, index++))
+                .Select(x => new ToDo(x.Directory!, x))
                 .ToList();
 
+            if (!string.IsNullOrEmpty(branch))
+            {
+                branch = string.Concat(Path.DirectorySeparatorChar, branch, Path.DirectorySeparatorChar);
+                toDoList = toDoList.Where(x => x.AppConfigFileInfo != null && 
+                x.AppConfigFileInfo.FullName.Contains(branch, StringComparison.CurrentCultureIgnoreCase)).ToList();
+            }
+
             foreach (var appConfigToDo in toDoList
-                .Where(x => x.AppConfigFileInfo != null && 
+                .Where(x => x.AppConfigFileInfo != null &&
                             string.Equals(x.AppConfigFileInfo.Name, "app.config", StringComparison.InvariantCultureIgnoreCase)).ToList())
             {
-                DirectoryInfo? baseDir = null;
-
                 var projectFileInfo = appConfigToDo.AppConfigFileInfo!.Directory!.GetFiles("*.csproj").FirstOrDefault();
                 if (projectFileInfo == null) continue;
 
-                var exeFileName = string.Concat(projectFileInfo.Name.Substring(0, projectFileInfo.Name.Length - 7), "exe");
+                var exeFileName = string.Concat(projectFileInfo.Name.Substring(0, projectFileInfo.Name.Length - 6), "exe");
+                var exeConfigFileName = string.Concat(exeFileName, ".config");
+                var binPath = Path.Combine(appConfigToDo.AppConfigFileInfo.Directory.FullName, "bin", "release");
+                var exeFilePath = Path.Combine(binPath, exeFileName);
+                var exeConfigFilePath = Path.Combine(binPath, exeConfigFileName);
 
-                foreach (var toDo in toDoList)
+                if (File.Exists(exeFilePath) && File.Exists(exeConfigFilePath))
                 {
-                    if (toDo.BaseDirInfo.FullName.EndsWith(Path.Combine("bin", "release"), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        baseDir = toDo.BaseDirInfo;
-                        break;
-                    }
-
-                    if (toDo.BaseDirInfo.FullName.EndsWith(Path.Combine("bin", "debug"), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        baseDir = toDo.BaseDirInfo;
-                        break;
-                    }
-                }
-
-                if (baseDir == null)
-                {
-                    toDoList.Remove(appConfigToDo);
-                    logger.CreateMSBuildWarning("ABT2", $"Configuration file '{appConfigToDo.AppConfigFileInfo?.FullName}' skipped because no bin directory was found!", "assembly-binding");
+                    appConfigToDo.BaseDirInfo = new DirectoryInfo(binPath);
                     continue;
                 }
 
-                if (!File.Exists(Path.Combine(baseDir.FullName, exeFileName)))
-                {
-                    toDoList.Remove(appConfigToDo);
-                    logger.CreateMSBuildWarning("ABT2", $"Configuration file '{appConfigToDo.AppConfigFileInfo?.FullName}' skipped because no bin directory was found!", "assembly-binding")??;
+                binPath = Path.Combine(appConfigToDo.AppConfigFileInfo.Directory.FullName, "bin", "debug");
+                exeFilePath = Path.Combine(binPath, exeFileName);
+                exeConfigFilePath = Path.Combine(binPath, exeConfigFileName);
 
+                if (File.Exists(exeFilePath) && File.Exists(exeConfigFilePath))
+                {
+                    appConfigToDo.BaseDirInfo = new DirectoryInfo(binPath);
                     continue;
                 }
 
-                appConfigToDo.BaseDirInfo = baseDir;
-
+                toDoList.Remove(appConfigToDo);
             }
+
             return toDoList;
         }
 
-        toDoList.Add(new ToDo(baseDirInfo, appConfigFileInfo, 0));
+        toDoList.Add(new ToDo(baseDirInfo, appConfigFileInfo));
         return toDoList;
     }
 }

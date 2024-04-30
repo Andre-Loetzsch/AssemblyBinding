@@ -1,6 +1,7 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
+using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -44,6 +45,14 @@ public class Program
         var commandLine = new CommandLineBuilder(rootCommand)
             .UseDefaults() // automatically configures dotnet-suggest
             .Build();
+
+        var processName = Process.GetCurrentProcess().ProcessName;
+
+        if (Process.GetProcessesByName(processName).Length > 1)
+        {
+            logger.CreateMSBuildError("ABT-1", "The application is already running.", "Main");
+            return -1;
+        }
 
         TabCompletions.Logger = logger;
 

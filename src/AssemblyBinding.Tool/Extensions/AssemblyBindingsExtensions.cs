@@ -9,6 +9,8 @@ namespace Oleander.Assembly.Binding.Tool.Extensions;
 
 internal static class AssemblyBindingsExtensions
 {
+    private static int index = -1;
+
     internal static string BuildFullAssemblyName(this AssemblyBindings assemblyBindings)
     {
         return $"{assemblyBindings.AssemblyName}, Version={assemblyBindings.AssemblyVersion}, Culture={assemblyBindings.Culture}, PublicKeyToken={assemblyBindings.PublicKey}";
@@ -30,10 +32,15 @@ internal static class AssemblyBindingsExtensions
         return maxVersion != null;
     }
 
-    internal static string CreateReports(this IDictionary<string, AssemblyBindings> bindings, FileInfo? appConfigFileInfo, int index)
+
+
+    internal static string CreateReports(this IDictionary<string, AssemblyBindings> bindings, FileInfo? appConfigFileInfo)
     {
         var outPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "out");
-        if (index == 0 && Directory.Exists(outPath)) Directory.Delete(outPath, true);
+
+        if (index == -1 && Directory.Exists(outPath)) Directory.Delete(outPath, true);
+        index++;
+
         if (!Directory.Exists(outPath)) Directory.CreateDirectory(outPath);
 
         var assemblyBindingsFileName = Path.Combine(outPath, $"{index +1}.1 AssemblyBindings.xml");
