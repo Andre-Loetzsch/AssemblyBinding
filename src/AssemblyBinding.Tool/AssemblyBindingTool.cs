@@ -4,6 +4,7 @@ using Oleander.Assembly.Binding.Tool.Extensions;
 using Oleander.Assembly.Binding.Tool.Html;
 using Oleander.Assembly.Binding.Tool.Xml;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Oleander.Assembly.Binding.Tool;
 
@@ -104,8 +105,8 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         {
             try
             {
-                logger.CreateMSBuildMessage("ABT0", $"Update app config file: {toDo.AppConfigFileInfo?.Directory?.Name}{Path.DirectorySeparatorChar}{toDo.AppConfigFileInfo?.Name}", "assembly-binding");
-                toDo.AppConfigFileInfo!.IsReadOnly = false;
+                logger.CreateMSBuildMessage("ABT0", $"Update app config file: {toDo.AppConfigFileInfo.Directory?.Name}{Path.DirectorySeparatorChar}{toDo.AppConfigFileInfo.Name}", "assembly-binding");
+                if (toDo.AppConfigFileInfo.Exists) toDo.AppConfigFileInfo.IsReadOnly = false;
                 cache.CreateOrUpdateApplicationConfigFile(toDo.AppConfigFileInfo.FullName);
             }
             catch (Exception ex)
@@ -149,54 +150,21 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
                 .Where(x => x.AppConfigFileInfo != null &&
                             string.Equals(x.AppConfigFileInfo.Name, "app.config", StringComparison.InvariantCultureIgnoreCase)).ToList())
             {
-                var projectFileInfo = appConfigToDo.AppConfigFileInfo!.Directory!.GetFiles("*.csproj").FirstOrDefault();
-                if (projectFileInfo == null) continue;
-
-                var exeFileName = string.Concat(projectFileInfo.Name.Substring(0, projectFileInfo.Name.Length - 6), "exe");
-                var exeConfigFileName = string.Concat(exeFileName, ".config");
-                var binPath = Path.Combine(appConfigToDo.AppConfigFileInfo.Directory.FullName, "bin", "release");
-                var exeFilePath = Path.Combine(binPath, exeFileName);
-                var exeConfigFilePath = Path.Combine(binPath, exeConfigFileName);
-
-                if (File.Exists(exeFilePath) && File.Exists(exeConfigFilePath))
+                if (appConfigToDo.AppConfigFileInfo?.Directory == null)
                 {
-                    appConfigToDo.BaseDirInfo = new DirectoryInfo(binPath);
+                    toDoList.Remove(appConfigToDo);
                     continue;
                 }
 
-                if (projectFileInfo.Name.EndsWith(".test.csproj", StringComparison.InvariantCultureIgnoreCase))
+                var binDirInfo = (from configurationName in new[] { "debug", "release" } 
+                    select Path.Combine(appConfigToDo.AppConfigFileInfo.Directory.FullName, "bin", configurationName) 
+                    into binPath where Directory.Exists(binPath) && Directory.GetFiles(binPath, "*.dll").Length > 0 
+                    select new DirectoryInfo(binPath)).FirstOrDefault();
+
+                if (binDirInfo != null)
                 {
-                    exeFilePath = exeFilePath.Replace(".Test.exe", ".Test.dll");
-                    exeConfigFilePath = exeConfigFilePath.Replace(".Test.exe.config", ".Test.dll.config");
-
-                    if (File.Exists(exeFilePath) && File.Exists(exeConfigFilePath))
-                    {
-                        appConfigToDo.BaseDirInfo = new DirectoryInfo(binPath);
-                        continue;
-                    }
-                }
-
-                binPath = Path.Combine(appConfigToDo.AppConfigFileInfo.Directory.FullName, "bin", "debug");
-                exeFilePath = Path.Combine(binPath, exeFileName);
-
-                exeConfigFilePath = Path.Combine(binPath, exeConfigFileName);
-
-                if (File.Exists(exeFilePath) && File.Exists(exeConfigFilePath))
-                {
-                    appConfigToDo.BaseDirInfo = new DirectoryInfo(binPath);
+                    appConfigToDo.BaseDirInfo = binDirInfo;
                     continue;
-                }
-
-                if (projectFileInfo.Name.EndsWith(".test.csproj", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    exeFilePath = exeFilePath.Replace(".Test.exe", ".Test.dll");
-                    exeConfigFilePath = exeConfigFilePath.Replace(".Test.exe.config", ".Test.dll.config");
-
-                    if (File.Exists(exeFilePath) && File.Exists(exeConfigFilePath))
-                    {
-                        appConfigToDo.BaseDirInfo = new DirectoryInfo(binPath);
-                        continue;
-                    }
                 }
 
                 toDoList.Remove(appConfigToDo);
@@ -208,4 +176,6 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         toDoList.Add(new ToDo(baseDirInfo, appConfigFileInfo));
         return toDoList;
     }
+
+
 }
