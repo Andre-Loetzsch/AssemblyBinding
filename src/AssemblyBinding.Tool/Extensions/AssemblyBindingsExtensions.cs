@@ -100,7 +100,7 @@ internal static class AssemblyBindingsExtensions
         }
 
         var headLine1 = $"Assembly Binding Report {index +1}";
-        var headLine2 = appConfigFileInfo == null ? "Reports:" :  string.Concat("Reports: ", HtmlIndex.CreateHtmlLink(appConfigFileInfo.FullName, $"Reports: {appConfigFileInfo.FullName}"));
+        var headLine2 = appConfigFileInfo == null ? "Reports:" :  string.Concat("Reports: ", HtmlIndex.CreateHtmlLink(appConfigFileInfo.FullName, appConfigFileInfo.FullName));
 
         File.WriteAllText(htmlIndexFileName, HtmlIndex.Create(links, $"{index + 1} Assembly Binding Report", headLine1, headLine2, index)); 
 

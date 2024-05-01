@@ -7,6 +7,8 @@ internal static class ApplicationConfiguration
 {
     internal static void CreateOrUpdateAssemblyBinding(List<AssemblyBindings> bindings, string appConfigurationFile)
     {
+        if (!File.Exists(appConfigurationFile) && bindings.Count == 0) return;
+
         var doc = LoadOrCreateXmlDocument(appConfigurationFile);
         var manager = new XmlNamespaceManager(doc.NameTable);
 
@@ -98,7 +100,7 @@ internal static class ApplicationConfiguration
 
         if (File.Exists(appConfigurationFile))
         {
-             doc.Load(appConfigurationFile);
+            doc.Load(appConfigurationFile);
 
             if (doc.SelectSingleNode("//runtime") != null) return doc;
 

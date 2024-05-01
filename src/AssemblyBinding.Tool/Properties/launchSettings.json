@@ -14,7 +14,7 @@
     },
     "Oleander.AssemblyBinding.Tool L316IT012": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --base-dir C:\\dev\\Tentakel\\dependencies\\dev-André\\Debug"
+      "commandLineArgs": "resolve --base-dir C:\\\\dev\\\\Tentakel\\\\Tentakel.Production.LineExplorer\\\\dev-André\\\\Plugin.ScrapCapturing.InjectionMolding.Test\\ --recursive"
     }
   }
 }
