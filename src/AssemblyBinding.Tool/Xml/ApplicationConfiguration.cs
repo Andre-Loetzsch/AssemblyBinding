@@ -7,7 +7,10 @@ internal static class ApplicationConfiguration
 {
     internal static void CreateOrUpdateAssemblyBinding(List<AssemblyBindings> bindings, string appConfigurationFile)
     {
-        if (!File.Exists(appConfigurationFile) && bindings.Count == 0) return;
+        var hasNoItems = bindings.All(x => x.Resolved && x.ReferencedByAssembly
+                        .All(x1 => x1.ReferencingAssemblyVersion == x.AssemblyVersion));
+
+        if (!File.Exists(appConfigurationFile) && hasNoItems) return;
 
         var doc = LoadOrCreateXmlDocument(appConfigurationFile);
         var manager = new XmlNamespaceManager(doc.NameTable);
@@ -25,7 +28,7 @@ internal static class ApplicationConfiguration
             }
         }
 
-        if (bindings.Count == 0)
+        if (hasNoItems)
         {
             doc.Save(appConfigurationFile);
             return;
