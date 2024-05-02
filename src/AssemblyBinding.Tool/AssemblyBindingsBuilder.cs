@@ -31,6 +31,7 @@ internal class AssemblyBindingsBuilder
             }
         }
 
+        GlobalAssemblyResolver.Instance.ClearCache();
         return cache;
     }
 
@@ -39,6 +40,7 @@ internal class AssemblyBindingsBuilder
         try
         {
             var assemblyDefinition = GlobalAssemblyResolver.Instance.GetAssemblyDefinition(path);
+
             if (assemblyDefinition == null)
             {
                 logger.LogInformation("File '{fileName}' is skipped because it is not a dotnet assembly.", Path.GetFileName(path));

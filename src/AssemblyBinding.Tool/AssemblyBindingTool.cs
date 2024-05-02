@@ -4,7 +4,6 @@ using Oleander.Assembly.Binding.Tool.Extensions;
 using Oleander.Assembly.Binding.Tool.Html;
 using Oleander.Assembly.Binding.Tool.Xml;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Oleander.Assembly.Binding.Tool;
 
@@ -34,38 +33,35 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
             }
         }
 
-        var toDoList = this.CreateToDoList(baseDirInfo, appConfigFileInfo, branch, recursive);
         var result = 0;
+        var index = 0;
+        var links = new Dictionary<string, string>();
 
-        for (var i = 0; i < toDoList.Count; i++)
+        foreach (var toDo in this.CreateToDoItems(baseDirInfo, appConfigFileInfo, branch, recursive))
         {
-            var innerResult = this.InnerExecute(toDoList[i], i, toDoList.Count, noReport);
+            var innerResult = this.InnerExecute(toDo, noReport);
+
+            index++;
+
             if (innerResult > 0) result = innerResult;
+
+            if (toDo.HtmlIndexPage == null || toDo.AppConfigFileInfo == null) continue;
+            links[toDo.HtmlIndexPage] = toDo.AppConfigFileInfo.FullName;
+
+            logger.CreateMSBuildMessage("ABT0", $"Completed tasks: {index}", "assembly-binding");
         }
 
-        if (toDoList.Count == 0) return 0;
+        if (links.Count == 0) return result;
 
-        string? htmlIndexFileName;
+        var htmlIndexFileName = links.Keys.First();
 
-        if (toDoList.Count == 1)
+        if (links.Count > 1)
         {
-            htmlIndexFileName = toDoList[0].HtmlIndexPage;
-        }
-        else
-        {
-            var links = new Dictionary<string, string>();
-
-            foreach (var toDo in toDoList)
-            {
-                if (toDo.HtmlIndexPage == null || toDo.AppConfigFileInfo == null) continue;
-                links[toDo.HtmlIndexPage] = toDo.AppConfigFileInfo.FullName;
-            }
-
             htmlIndexFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "out", "index.html");
             File.WriteAllText(htmlIndexFileName, HtmlIndex.Create(links, "Assembly binding reports", "Assembly binding index", "Select a link to get more information"));
         }
 
-        if (string.IsNullOrEmpty(htmlIndexFileName)) return 0;
+        if (string.IsNullOrEmpty(htmlIndexFileName)) return result;
 
         var psi = new ProcessStartInfo
         {
@@ -76,9 +72,31 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         return Process.Start(psi) == null ? 4 : result;
     }
 
-    private int InnerExecute(ToDo toDo, int index, int maxIndex, bool noReport)
+    private int InnerExecute(ToDo toDo, bool noReport)
     {
-        logger.CreateMSBuildMessage("ABT0", $"Load assemblies: {toDo.AppConfigFileInfo?.Directory?.Name} {index + 1}/{maxIndex}", "assembly-binding");
+        var logDir = toDo.AppConfigFileInfo?.Directory?.FullName;
+
+        if (logDir is { Length: > 20 })
+        {
+            var tempList = new List<string>();
+            var splitPath = logDir.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+            var pathLen = 0;
+
+            for (var i = splitPath.Length -1; i >= 0 ; i--)
+            {
+                var path = splitPath[i];
+                pathLen += path.Length;
+
+                tempList.Add(path);
+
+                if (pathLen > 20) break;
+            }
+
+            logDir = string.Concat("...", Path.DirectorySeparatorChar, string.Join(Path.DirectorySeparatorChar, tempList));
+        }
+
+
+        logger.CreateMSBuildMessage("ABT0", $"Load assemblies: {logDir}", "assembly-binding");
         var cache = AssemblyBindingsBuilder.Create(toDo.BaseDirInfo);
 
         if (cache.Count == 0)
@@ -119,63 +137,47 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         return 0;
     }
 
-    private List<ToDo> CreateToDoList(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, string branch, bool recursive)
+    private IEnumerable<ToDo> CreateToDoItems(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, string branch, bool recursive)
     {
-        var toDoList = new List<ToDo>();
-        var enumerationOptions = new EnumerationOptions
-        {
-            MatchCasing = MatchCasing.CaseInsensitive,
-            RecurseSubdirectories = true
-        };
-
         if (recursive)
         {
-            logger.CreateMSBuildMessage("ABT0", "Processing data. This could take a while...", "assembly-binding");
-
-            toDoList = baseDirInfo.GetFiles("*.config", enumerationOptions)
-                .Where(x => x.Directory != null &&
-                            !x.Directory.FullName.Contains($"{Path.DirectorySeparatorChar}obj", StringComparison.InvariantCultureIgnoreCase) &&
-                            ApplicationConfiguration.IsAppConfigFile(x.FullName))
-                .Select(x => new ToDo(x.Directory!, x))
-                .ToList();
-
-            if (!string.IsNullOrEmpty(branch))
+            var enumerationOptions = new EnumerationOptions
             {
-                branch = string.Concat(Path.DirectorySeparatorChar, branch, Path.DirectorySeparatorChar);
-                toDoList = toDoList.Where(x => x.AppConfigFileInfo != null &&
-                x.AppConfigFileInfo.FullName.Contains(branch, StringComparison.CurrentCultureIgnoreCase)).ToList();
-            }
+                MatchCasing = MatchCasing.CaseInsensitive,
+                RecurseSubdirectories = true
+            };
 
-            foreach (var appConfigToDo in toDoList
-                .Where(x => x.AppConfigFileInfo != null &&
-                            string.Equals(x.AppConfigFileInfo.Name, "app.config", StringComparison.InvariantCultureIgnoreCase)).ToList())
+            logger.CreateMSBuildMessage("ABT0", "Processing data...", "assembly-binding");
+            branch = string.IsNullOrEmpty(branch) ? Path.DirectorySeparatorChar.ToString() : string.Concat(Path.DirectorySeparatorChar, branch, Path.DirectorySeparatorChar);
+
+            foreach (var toDo in baseDirInfo.EnumerateFiles("*.config", enumerationOptions)
+                         .Where(x => x.Directory != null &&
+                                     !x.Directory.FullName.Contains($"{Path.DirectorySeparatorChar}obj", StringComparison.InvariantCultureIgnoreCase) &&
+                                     x.Directory.FullName.Contains(branch, StringComparison.CurrentCultureIgnoreCase) &&
+                                     ApplicationConfiguration.IsAppConfigFile(x.FullName))
+                         .Select(x => new ToDo(x.Directory!, x)))
             {
-                if (appConfigToDo.AppConfigFileInfo?.Directory == null)
+
+                if (string.Equals(toDo.AppConfigFileInfo?.Name, "app.config", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    toDoList.Remove(appConfigToDo);
-                    continue;
+                    if (toDo.AppConfigFileInfo?.Directory == null) continue;
+
+                    var binDirInfo = (from configurationName in new[] { "debug", "release" }
+                                      select Path.Combine(toDo.AppConfigFileInfo.Directory.FullName, "bin", configurationName)
+                        into binPath
+                                      where Directory.Exists(binPath) && Directory.GetFiles(binPath, "*.dll").Length > 0
+                                      select new DirectoryInfo(binPath)).FirstOrDefault();
+
+                    if (binDirInfo == null) continue;
+                    toDo.BaseDirInfo = binDirInfo;
                 }
 
-                var binDirInfo = (from configurationName in new[] { "debug", "release" } 
-                    select Path.Combine(appConfigToDo.AppConfigFileInfo.Directory.FullName, "bin", configurationName) 
-                    into binPath where Directory.Exists(binPath) && Directory.GetFiles(binPath, "*.dll").Length > 0 
-                    select new DirectoryInfo(binPath)).FirstOrDefault();
-
-                if (binDirInfo != null)
-                {
-                    appConfigToDo.BaseDirInfo = binDirInfo;
-                    continue;
-                }
-
-                toDoList.Remove(appConfigToDo);
+                yield return toDo;
             }
-
-            return toDoList;
         }
-
-        toDoList.Add(new ToDo(baseDirInfo, appConfigFileInfo));
-        return toDoList;
+        else
+        {
+            yield return new ToDo(baseDirInfo, appConfigFileInfo);
+        }
     }
-
-
 }
