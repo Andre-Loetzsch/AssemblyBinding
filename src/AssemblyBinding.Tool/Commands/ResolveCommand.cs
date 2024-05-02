@@ -12,16 +12,17 @@ internal class ResolveCommand : Command
         var recursiveOption = new RecursiveOption();
         var noReportOption = new NoReportOption();
         var branchOption = new BranchOption();
+        var configurationNameOption = new ConfigurationNameOption();
 
         this.AddOption(baseDirOption);
         this.AddOption(appConfigFileOption);
         this.AddOption(noReportOption);
         this.AddOption(recursiveOption);
         this.AddOption(branchOption);
+        this.AddOption(configurationNameOption);
 
-
-        this.SetHandler((baseDir, appConfigFile, recursive,  noReport, branch) => 
-            Task.FromResult(tool.Execute(baseDir, appConfigFile, recursive, noReport, branch)), 
-            baseDirOption, appConfigFileOption, recursiveOption, noReportOption, branchOption);
+        this.SetHandler((baseDir, appConfigFile, recursive,  noReport, branch, configurationName) => 
+            Task.FromResult(tool.Execute(baseDir, appConfigFile, recursive, noReport, branch, configurationName)), 
+            baseDirOption, appConfigFileOption, recursiveOption, noReportOption, branchOption, configurationNameOption);
     }
 }

@@ -9,7 +9,7 @@ namespace Oleander.Assembly.Binding.Tool;
 
 internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
 {
-    internal int Execute(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, bool recursive, bool noReport, string branch)
+    internal int Execute(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, bool recursive, bool noReport, string branch, string configurationName)
     {
         if (recursive)
         {
@@ -23,13 +23,20 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         {
             if (appConfigFileInfo == null && noReport)
             {
-                logger.CreateMSBuildWarning("ABT2", "No actions were taken! No configuration file was specified and the --no-report option was set to true.", "assembly-binding");
+                logger.CreateMSBuildError("ABT2", "No actions were taken! No configuration file was specified and the --no-report option was set to true.", "assembly-binding");
                 return 2;
             }
 
             if (!string.IsNullOrEmpty(branch))
             {
-                logger.CreateMSBuildWarning("ABT2", "The --branch option is ignored because it is only valid with the --recursive true option", "assembly-binding");
+                logger.CreateMSBuildError("ABT3", "The --branch option is only valid with the --recursive true option", "assembly-binding");
+                return 3;
+            }
+
+            if (!string.IsNullOrEmpty(configurationName))
+            {
+                logger.CreateMSBuildError("ABT4", "The --configuration-name option is only valid with the --recursive true option", "assembly-binding");
+                return 4;
             }
         }
 
@@ -37,7 +44,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         var index = 0;
         var links = new Dictionary<string, string>();
 
-        foreach (var toDo in this.CreateToDoItems(baseDirInfo, appConfigFileInfo, branch, recursive))
+        foreach (var toDo in this.CreateToDoItems(baseDirInfo, appConfigFileInfo, recursive, branch, configurationName))
         {
             var innerResult = this.InnerExecute(toDo, noReport);
 
@@ -48,7 +55,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
             if (toDo.HtmlIndexPage == null || toDo.AppConfigFileInfo == null) continue;
             links[toDo.HtmlIndexPage] = toDo.AppConfigFileInfo.FullName;
 
-            logger.CreateMSBuildMessage("ABT0", $"Completed tasks: {index}", "assembly-binding");
+            logger.CreateMSBuildMessage("ABT1", $"Completed tasks: {index}", "assembly-binding");
         }
 
         if (links.Count == 0) return result;
@@ -96,12 +103,12 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         }
 
 
-        logger.CreateMSBuildMessage("ABT0", $"Load assemblies: {logDir}", "assembly-binding");
+        logger.CreateMSBuildMessage("ABT2", $"Load assemblies: {logDir}", "assembly-binding");
         var cache = AssemblyBindingsBuilder.Create(toDo.BaseDirInfo);
 
         if (cache.Count == 0)
         {
-            logger.CreateMSBuildWarning("ABT2", $"Directory '{toDo.BaseDirInfo}' does not contain any assemblies!", "assembly-binding");
+            logger.CreateMSBuildWarning("ABT1", $"Directory '{toDo.BaseDirInfo}' does not contain any assemblies!", "assembly-binding");
             return 0;
         }
 
@@ -109,13 +116,13 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         {
             try
             {
-                logger.CreateMSBuildMessage("ABT0", "Create reports", "assembly-binding");
+                logger.CreateMSBuildMessage("ABT3", "Create reports", "assembly-binding");
                 toDo.HtmlIndexPage = cache.CreateReports(toDo.AppConfigFileInfo);
             }
             catch (Exception ex)
             {
-                logger.CreateMSBuildError("ABT1", ex.Message, "assembly-binding");
-                return 4;
+                logger.CreateMSBuildError("ABT5", ex.Message, "assembly-binding");
+                return 5;
             }
         }
 
@@ -123,21 +130,21 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         {
             try
             {
-                logger.CreateMSBuildMessage("ABT0", $"Update app config file: {toDo.AppConfigFileInfo.Directory?.Name}{Path.DirectorySeparatorChar}{toDo.AppConfigFileInfo.Name}", "assembly-binding");
+                logger.CreateMSBuildMessage("ABT4", $"Update app config file: {logDir}{Path.DirectorySeparatorChar}{toDo.AppConfigFileInfo.Name}", "assembly-binding");
                 if (toDo.AppConfigFileInfo.Exists) toDo.AppConfigFileInfo.IsReadOnly = false;
                 cache.CreateOrUpdateApplicationConfigFile(toDo.AppConfigFileInfo.FullName);
             }
             catch (Exception ex)
             {
-                logger.CreateMSBuildError("ABT1", ex.Message, "assembly-binding");
-                return 5;
+                logger.CreateMSBuildError("ABT6", ex.Message, "assembly-binding");
+                return 6;
             }
         }
 
         return 0;
     }
 
-    private IEnumerable<ToDo> CreateToDoItems(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, string branch, bool recursive)
+    private IEnumerable<ToDo> CreateToDoItems(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, bool recursive, string branch, string configurationName)
     {
         if (recursive)
         {
@@ -147,8 +154,15 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
                 RecurseSubdirectories = true
             };
 
-            logger.CreateMSBuildMessage("ABT0", "Processing data...", "assembly-binding");
-            branch = string.IsNullOrEmpty(branch) ? Path.DirectorySeparatorChar.ToString() : string.Concat(Path.DirectorySeparatorChar, branch, Path.DirectorySeparatorChar);
+            logger.CreateMSBuildMessage("ABT5", "Processing data...", "assembly-binding");
+            branch = string.IsNullOrEmpty(branch) ? 
+                Path.DirectorySeparatorChar.ToString() : 
+                string.Concat(Path.DirectorySeparatorChar, branch, Path.DirectorySeparatorChar);
+
+            var configurationNames = string.IsNullOrEmpty(configurationName) ?
+                new[] { "debug", "release" } :
+                new[] { configurationName };
+
 
             foreach (var toDo in baseDirInfo.EnumerateFiles("*.config", enumerationOptions)
                          .Where(x => x.Directory != null &&
@@ -162,9 +176,9 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
                 {
                     if (toDo.AppConfigFileInfo?.Directory == null) continue;
 
-                    var binDirInfo = (from configurationName in new[] { "debug", "release" }
-                                      select Path.Combine(toDo.AppConfigFileInfo.Directory.FullName, "bin", configurationName)
-                        into binPath
+                    var binDirInfo = (from configName in configurationNames
+                                      select Path.Combine(toDo.AppConfigFileInfo.Directory.FullName, "bin", configName)
+                                      into binPath
                                       where Directory.Exists(binPath) && Directory.GetFiles(binPath, "*.dll").Length > 0
                                       select new DirectoryInfo(binPath)).FirstOrDefault();
 
