@@ -112,10 +112,22 @@ public class CreateOrUpdateAssemblyBindingTest
     [Fact]
     public void TestRemoveAssemblyBindingsFromConfigFile()
     {
+        var ab1 = new AssemblyBindings("Test.Assembly1")
+        {
+            AssemblyVersion = new Version(2, 76, 0, 3),
+            PublicKey = "1234567890",
+            Culture = "de-De",
+            Resolved = true
+        };
+
+        ab1.ReferencedByAssembly.Add(new ReferencingAssembly("x.y", "x", new Version(), new Version(2, 76, 0, 3)));
+        ab1.ReferencedByAssembly.Add(new ReferencingAssembly("x.y", "x", new Version(), new Version(2, 76, 0, 3)));
+        
+        var assemblyBindings = new List<AssemblyBindings> { ab1 }; 
         var expectedConfigPath = Path.Combine(AppContext.BaseDirectory, "app5.expected.config");
         var appCopyConfigPath = Path.Combine(AppContext.BaseDirectory, "app5.config");
 
-        ApplicationConfiguration.CreateOrUpdateAssemblyBinding(new List<AssemblyBindings>(), appCopyConfigPath);
+        ApplicationConfiguration.CreateOrUpdateAssemblyBinding(assemblyBindings, appCopyConfigPath);
 
         Assert.True(File.Exists(appCopyConfigPath));
         Assert.Equal(File.ReadAllText(expectedConfigPath), File.ReadAllText(appCopyConfigPath));
