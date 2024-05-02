@@ -23,17 +23,20 @@ dotnet tool uninstall dotnet-assembly-binding-tool --global
     Oleander.Assembly.Binding.Tool [command] [options]
 
 ### Options:
-  - **--version**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Show version information*
-  - **-?, -h, --help**  &nbsp;*Show help and usage information*
+ - **--version**<br>*Show version information*
+ - **-?, -h, --help**<br>*Show help and usage information*
 
 ## Commands:
-  - resolve&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Resolve assembly bindings*
+  - resolve<br>*Resolve assembly bindings*
 
 ### Options:
-  - **--base-dir**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*The base application directory*
-  - **--app-config**&nbsp;&nbsp;&nbsp;*The application configuration file*
-  - **--no-report**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*No report will be generated*
-  - **-?, -h, --help**&nbsp;&nbsp;&nbsp;&nbsp;*Show help and usage information*
+ - **--base-dir**<br>*The base application directory*
+ - **--app-config**<br>*The application configuration file*
+ - **--no-report**<br>*No report will be generated*
+ - **--recursive**<br>*Recursively updates all configuration files*
+ - **--branch**<br>*Name of the branch used as a search filter (only valid with option --recursive true)*
+ - **--configuration-name**<br>*Name of the configuration (Release, Debug) (only valid with option --recursive true)*
+ - **-?, -h, --help**<br>*Show help and usage information*
 
 ### Example:
 assembly-binding resolve --app-config D:/dev/MyApp/MyApp.exe.config --base-dir D:/dev/MyApp/
