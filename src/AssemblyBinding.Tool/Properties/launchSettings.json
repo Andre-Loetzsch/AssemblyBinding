@@ -14,7 +14,7 @@
     },
     "Oleander.AssemblyBinding.Tool L316IT012": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --base-dir C:\\dev\\Tentakel\\ --recursive --branch dev-André"
+      "commandLineArgs": "resolve --base-dir C:\\dev\\Tentakel\\ --recursive"
     }
   }
 }

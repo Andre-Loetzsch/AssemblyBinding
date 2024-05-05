@@ -9,7 +9,7 @@ namespace Oleander.Assembly.Binding.Tool;
 
 internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
 {
-    internal async Task<int> Execute(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, bool recursive, bool noReport, string branch, string configurationName)
+    internal int Execute(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, bool recursive, bool noReport, string branch, string configurationName)
     {
         if (recursive)
         {
@@ -46,7 +46,9 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
 
         foreach (var toDo in this.CreateToDoItems(baseDirInfo, appConfigFileInfo, recursive, branch, configurationName))
         {
-            var innerResult = await this.InnerExecuteAsync(toDo, noReport);
+            //var innerResult = await this.InnerExecuteAsync(toDo, noReport);
+            var innerResult = this.InnerExecute(toDo, noReport);
+
 
             if (innerResult > 0) result = innerResult;
             if (toDo.HtmlIndexPage == null || toDo.AppConfigFileInfo == null) continue;
@@ -61,7 +63,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         if (links.Count > 1)
         {
             htmlIndexFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "out", "index.html");
-            await File.WriteAllTextAsync(htmlIndexFileName, HtmlIndex.Create(links, "Assembly binding reports", "Assembly binding index", "Select a link to get more information"));
+            File.WriteAllText(htmlIndexFileName, HtmlIndex.Create(links, "Assembly binding reports", "Assembly binding index", "Select a link to get more information"));
         }
 
         if (string.IsNullOrEmpty(htmlIndexFileName)) return result;
@@ -109,6 +111,49 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
                 //logger.CreateMSBuildMessage("ABT5", $"Update config file: {toDo.AppConfigFileInfo.GetShortPathInfo(20)}", "assembly-binding");
                 if (toDo.AppConfigFileInfo.Exists) toDo.AppConfigFileInfo.IsReadOnly = false;
                 await cache.CreateOrUpdateApplicationConfigFileAsync(toDo.AppConfigFileInfo.FullName);
+            }
+            catch (Exception ex)
+            {
+                logger.CreateMSBuildError("ABT6", ex.Message, "assembly-binding");
+                return 6;
+            }
+        }
+
+        return 0;
+    }
+
+    private int InnerExecute(ToDo toDo, bool noReport)
+    {
+        //logger.CreateMSBuildMessage("ABT3", $"Load assemblies: {toDo.BaseDirInfo.GetShortPathInfo(20)}", "assembly-binding");
+        var cache = AssemblyBindingsBuilder.Create(toDo.BaseDirInfo);
+
+        if (cache.Count == 0)
+        {
+            logger.CreateMSBuildWarning("ABT1", $"Directory '{toDo.BaseDirInfo.GetShortPathInfo(20)}' does not contain any assemblies!", "assembly-binding");
+            return 0;
+        }
+
+        if (!noReport)
+        {
+            try
+            {
+                //logger.CreateMSBuildMessage("ABT4", "Create reports: ...", "assembly-binding");
+                toDo.HtmlIndexPage = cache.CreateReports(toDo.AppConfigFileInfo);
+            }
+            catch (Exception ex)
+            {
+                logger.CreateMSBuildError("ABT5", ex.Message, "assembly-binding");
+                return 5;
+            }
+        }
+
+        if (toDo.AppConfigFileInfo != null)
+        {
+            try
+            {
+                //logger.CreateMSBuildMessage("ABT5", $"Update config file: {toDo.AppConfigFileInfo.GetShortPathInfo(20)}", "assembly-binding");
+                if (toDo.AppConfigFileInfo.Exists) toDo.AppConfigFileInfo.IsReadOnly = false;
+                cache.CreateOrUpdateApplicationConfigFile(toDo.AppConfigFileInfo.FullName);
             }
             catch (Exception ex)
             {
