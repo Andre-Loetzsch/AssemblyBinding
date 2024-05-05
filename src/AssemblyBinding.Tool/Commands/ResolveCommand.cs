@@ -21,8 +21,7 @@ internal class ResolveCommand : Command
         this.AddOption(branchOption);
         this.AddOption(configurationNameOption);
 
-        this.SetHandler((baseDir, appConfigFile, recursive,  noReport, branch, configurationName) => 
-            Task.FromResult(tool.Execute(baseDir, appConfigFile, recursive, noReport, branch, configurationName)), 
+        this.SetHandler(tool.Execute, 
             baseDirOption, appConfigFileOption, recursiveOption, noReportOption, branchOption, configurationNameOption);
     }
 }

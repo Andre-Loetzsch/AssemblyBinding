@@ -1,4 +1,6 @@
-﻿namespace Oleander.Assembly.Binding.Tool.Extensions;
+﻿using Oleander.Assembly.Binding.Tool.Data;
+
+namespace Oleander.Assembly.Binding.Tool.Extensions;
 
 internal static class VersionExtensions
 {

@@ -9,6 +9,11 @@ internal class AssemblyBindingsBuilder
 {
     private static readonly ILogger logger = LoggerFactory.CreateLogger<AssemblyBindingsBuilder>();
 
+    internal static async Task<Dictionary<string, AssemblyBindings>> CreateAsync(DirectoryInfo directoryInfo)
+    {
+        return await Task.Run(() => Create(directoryInfo));
+    }
+
     internal static Dictionary<string, AssemblyBindings> Create(DirectoryInfo directoryInfo)
     {
         var cache = new Dictionary<string, AssemblyBindings>();

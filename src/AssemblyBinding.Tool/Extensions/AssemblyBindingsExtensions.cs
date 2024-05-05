@@ -3,6 +3,7 @@ using Oleander.Assembly.Binding.Tool.Html;
 using Oleander.Assembly.Binding.Tool.Reports;
 using Oleander.Assembly.Binding.Tool.Xml;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using Westwind.AspNetCore.Markdown;
 
 namespace Oleander.Assembly.Binding.Tool.Extensions;
@@ -32,7 +33,10 @@ internal static class AssemblyBindingsExtensions
         return maxVersion != null;
     }
 
-
+    internal static async Task<string> CreateReportsAsync(this IDictionary<string, AssemblyBindings> bindings, FileInfo? appConfigFileInfo)
+    {
+        return await Task.Run(() => CreateReports(bindings, appConfigFileInfo));
+    }
 
     internal static string CreateReports(this IDictionary<string, AssemblyBindings> bindings, FileInfo? appConfigFileInfo)
     {
@@ -99,8 +103,13 @@ internal static class AssemblyBindingsExtensions
             links[createAssemblyBuildOrderReportFileName] = "Assembly build order";
         }
 
-        var headLine1 = $"Assembly Binding Report {index +1}";
-        var headLine2 = appConfigFileInfo == null ? "Reports:" :  string.Concat("Reports: ", HtmlIndex.CreateHtmlLink(appConfigFileInfo.FullName, appConfigFileInfo.FullName));
+        if (appConfigFileInfo != null)
+        {
+            links[appConfigFileInfo.FullName] = appConfigFileInfo.Name;
+        }
+
+        var headLine1 = $"Assembly Binding Report {index + 1}";
+        var headLine2 = "";
 
         File.WriteAllText(htmlIndexFileName, HtmlIndex.Create(links, $"{index + 1} Assembly Binding Report", headLine1, headLine2, index)); 
 
@@ -136,6 +145,10 @@ internal static class AssemblyBindingsExtensions
         return Markdown.Parse(AssemblyBuildOrderReport.Create(bindings));
     }
 
+    internal static async Task CreateOrUpdateApplicationConfigFileAsync(this IDictionary<string, AssemblyBindings> bindings, string appConfigurationFile)
+    {
+        await Task.Run(() => CreateOrUpdateApplicationConfigFile(bindings, appConfigurationFile));
+    }
     internal static void CreateOrUpdateApplicationConfigFile(this IDictionary<string, AssemblyBindings> bindings, string appConfigurationFile)
     {
         ApplicationConfiguration.CreateOrUpdateAssemblyBinding(bindings.Values.ToList(), appConfigurationFile);

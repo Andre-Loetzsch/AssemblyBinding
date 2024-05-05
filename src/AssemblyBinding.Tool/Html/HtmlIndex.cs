@@ -11,10 +11,7 @@ internal static class HtmlIndex
 
         foreach (var (key, value) in links)
         {
-            //sb.AppendLine($"          <li><a    href=\"{key}\" target=\"_blank\" rel=\"noopener noreferrer\">{index}.{i++}: {value}</a></li>");
-            //sb.AppendLine($"          <li><a    href=\"{key}\" rel=\"noopener noreferrer\">{index +1}.{i++}: {value}</a></li>");
             sb.AppendLine($"          <li><a href=\"{key}\">{index + 1}.{i++}: {value}</a></li>");
-
         }
 
         sb.AppendLine("    </ul>")
