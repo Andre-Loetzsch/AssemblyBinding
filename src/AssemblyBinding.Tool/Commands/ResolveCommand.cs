@@ -24,8 +24,5 @@ internal class ResolveCommand : Command
         this.SetHandler((baseDir, appConfigFile, recursive, noReport, branch, configurationName) =>
                 Task.FromResult(tool.Execute(baseDir, appConfigFile, recursive, noReport, branch, configurationName)),
             baseDirOption, appConfigFileOption, recursiveOption, noReportOption, branchOption, configurationNameOption);
-
-        //this.SetHandler(tool.Execute, 
-        //    baseDirOption, appConfigFileOption, recursiveOption, noReportOption, branchOption, configurationNameOption);
     }
 }

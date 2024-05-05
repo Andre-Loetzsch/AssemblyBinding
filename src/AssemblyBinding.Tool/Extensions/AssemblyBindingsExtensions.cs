@@ -3,7 +3,6 @@ using Oleander.Assembly.Binding.Tool.Html;
 using Oleander.Assembly.Binding.Tool.Reports;
 using Oleander.Assembly.Binding.Tool.Xml;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using Westwind.AspNetCore.Markdown;
 
 namespace Oleander.Assembly.Binding.Tool.Extensions;
@@ -15,10 +14,6 @@ internal static class AssemblyBindingsExtensions
     internal static string BuildFullAssemblyName(this AssemblyBindings assemblyBindings)
     {
         return $"{assemblyBindings.AssemblyName}, Version={assemblyBindings.AssemblyVersion}, Culture={assemblyBindings.Culture}, PublicKeyToken={assemblyBindings.PublicKey}";
-    }
-    internal static string BuildAssemblyKey(this AssemblyBindings assemblyBindings)
-    {
-        return $"{assemblyBindings.AssemblyName}, PublicKey={assemblyBindings.PublicKey}, culture={assemblyBindings.Culture}";
     }
 
     internal static bool TryGetMinVersion(this AssemblyBindings assemblyBindings, [MaybeNullWhen(false)] out Version minVersion)
@@ -33,20 +28,15 @@ internal static class AssemblyBindingsExtensions
         return maxVersion != null;
     }
 
-    internal static async Task<string> CreateReportsAsync(this IDictionary<string, AssemblyBindings> bindings, FileInfo? appConfigFileInfo)
-    {
-        return await Task.Run(() => CreateReports(bindings, appConfigFileInfo));
-    }
-
     internal static string CreateReports(this IDictionary<string, AssemblyBindings> bindings, FileInfo? appConfigFileInfo)
     {
-        var outPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "out");
+        var outPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "reports");
 
         if (index == -1 && Directory.Exists(outPath)) Directory.Delete(outPath, true);
         index++;
 
         if (!Directory.Exists(outPath)) Directory.CreateDirectory(outPath);
-
+        var htmlMainIndexFileName = Path.Combine(outPath, "index.html");
         var assemblyBindingsFileName = Path.Combine(outPath, $"{index +1}.1 AssemblyBindings.xml");
         var topLevelAssembliesFileName = Path.Combine(outPath, $"{index + 1}.2 TopLevelAssemblies.html");
         var referencedByAssembliesFileName = Path.Combine(outPath, $"{index + 1}.3 ReferencedByAssemblies.html");
@@ -109,48 +99,45 @@ internal static class AssemblyBindingsExtensions
         }
 
         var headLine1 = $"Assembly Binding Report {index + 1}";
-        var headLine2 = "";
+        var headLine2 = HtmlIndex.CreateHtmlLink(htmlMainIndexFileName, "Report selection");
 
         File.WriteAllText(htmlIndexFileName, HtmlIndex.Create(links, $"{index + 1} Assembly Binding Report", headLine1, headLine2, index)); 
 
         return htmlIndexFileName;
     }
 
-    internal static string CreateReferencedByAssembliesReport(this IDictionary<string, AssemblyBindings> bindings)
+    internal static void CreateOrUpdateApplicationConfigFile(this IDictionary<string, AssemblyBindings> bindings, string appConfigurationFile)
+    {
+        ApplicationConfiguration.CreateOrUpdateAssemblyBinding(bindings.Values.ToList(), appConfigurationFile);
+    }
+
+    private static string CreateReferencedByAssembliesReport(this IDictionary<string, AssemblyBindings> bindings)
     {
         return Markdown.Parse(ReferencedByAssembliesReport.Create(bindings, true));
     }
 
-    internal static string CreateUnresolvedAssembliesReport(this IDictionary<string, AssemblyBindings> bindings)
+    private static string CreateUnresolvedAssembliesReport(this IDictionary<string, AssemblyBindings> bindings)
     {
         return Markdown.Parse(ReferencedByAssembliesReport.Create(bindings, false));
     }
 
-    internal static string CreateTopLevelAssemblyReport(this IDictionary<string, AssemblyBindings> bindings)
+    private static string CreateTopLevelAssemblyReport(this IDictionary<string, AssemblyBindings> bindings)
     {
         return Markdown.Parse(TopLevelAssemblyReport.Create(bindings));
     }
-    internal static string CreateAssemblyDependencyReport(this IDictionary<string, AssemblyBindings> bindings)
+
+    private static string CreateAssemblyDependencyReport(this IDictionary<string, AssemblyBindings> bindings)
     {
         return Markdown.Parse(AssemblyDependencyReport.Create(bindings));
     }
 
-    internal static string CreateAssemblyBindingsReport(this IDictionary<string, AssemblyBindings> bindings)
+    private static string CreateAssemblyBindingsReport(this IDictionary<string, AssemblyBindings> bindings)
     {
         return AssemblyBindingsReport.Create(bindings.Values);
     }
 
-    internal static string CreateAssemblyBuildOrderReport(this IDictionary<string, AssemblyBindings> bindings)
+    private static string CreateAssemblyBuildOrderReport(this IDictionary<string, AssemblyBindings> bindings)
     {
         return Markdown.Parse(AssemblyBuildOrderReport.Create(bindings));
-    }
-
-    internal static async Task CreateOrUpdateApplicationConfigFileAsync(this IDictionary<string, AssemblyBindings> bindings, string appConfigurationFile)
-    {
-        await Task.Run(() => CreateOrUpdateApplicationConfigFile(bindings, appConfigurationFile));
-    }
-    internal static void CreateOrUpdateApplicationConfigFile(this IDictionary<string, AssemblyBindings> bindings, string appConfigurationFile)
-    {
-        ApplicationConfiguration.CreateOrUpdateAssemblyBinding(bindings.Values.ToList(), appConfigurationFile);
     }
 }

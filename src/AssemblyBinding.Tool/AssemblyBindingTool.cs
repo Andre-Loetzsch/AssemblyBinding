@@ -42,11 +42,9 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
 
         var result = 0;
         var links = new Dictionary<string, string>();
-        var now = DateTime.Now;
 
         foreach (var toDo in this.CreateToDoItems(baseDirInfo, appConfigFileInfo, recursive, branch, configurationName))
         {
-            //var innerResult = await this.InnerExecuteAsync(toDo, noReport);
             var innerResult = this.InnerExecute(toDo, noReport);
 
 
@@ -62,7 +60,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
 
         if (links.Count > 1)
         {
-            htmlIndexFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "out", "index.html");
+            htmlIndexFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "reports", "index.html");
             File.WriteAllText(htmlIndexFileName, HtmlIndex.Create(links, "Assembly binding reports", "Assembly binding index", "Select a link to get more information"));
         }
 
@@ -71,60 +69,14 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         var psi = new ProcessStartInfo
         {
             FileName = htmlIndexFileName,
-            UseShellExecute = true // Wichtig für .NET Core oder .NET 5+
+            UseShellExecute = true 
         };
-
-        var diff = (DateTime.Now - now); //1100
 
         return Process.Start(psi) == null ? 4 : result;
     }
 
-    private async Task<int> InnerExecuteAsync(ToDo toDo, bool noReport)
-    {
-        //logger.CreateMSBuildMessage("ABT3", $"Load assemblies: {toDo.BaseDirInfo.GetShortPathInfo(20)}", "assembly-binding");
-        var cache = await AssemblyBindingsBuilder.CreateAsync(toDo.BaseDirInfo);
-
-        if (cache.Count == 0)
-        {
-            logger.CreateMSBuildWarning("ABT1", $"Directory '{toDo.BaseDirInfo.GetShortPathInfo(20)}' does not contain any assemblies!", "assembly-binding");
-            return 0;
-        }
-
-        if (!noReport)
-        {
-            try
-            {
-                //logger.CreateMSBuildMessage("ABT4", "Create reports: ...", "assembly-binding");
-                toDo.HtmlIndexPage = await cache.CreateReportsAsync(toDo.AppConfigFileInfo);
-            }
-            catch (Exception ex)
-            {
-                logger.CreateMSBuildError("ABT5", ex.Message, "assembly-binding");
-                return 5;
-            }
-        }
-
-        if (toDo.AppConfigFileInfo != null)
-        {
-            try
-            {
-                //logger.CreateMSBuildMessage("ABT5", $"Update config file: {toDo.AppConfigFileInfo.GetShortPathInfo(20)}", "assembly-binding");
-                if (toDo.AppConfigFileInfo.Exists) toDo.AppConfigFileInfo.IsReadOnly = false;
-                await cache.CreateOrUpdateApplicationConfigFileAsync(toDo.AppConfigFileInfo.FullName);
-            }
-            catch (Exception ex)
-            {
-                logger.CreateMSBuildError("ABT6", ex.Message, "assembly-binding");
-                return 6;
-            }
-        }
-
-        return 0;
-    }
-
     private int InnerExecute(ToDo toDo, bool noReport)
     {
-        //logger.CreateMSBuildMessage("ABT3", $"Load assemblies: {toDo.BaseDirInfo.GetShortPathInfo(20)}", "assembly-binding");
         var cache = AssemblyBindingsBuilder.Create(toDo.BaseDirInfo);
 
         if (cache.Count == 0)
@@ -137,7 +89,6 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         {
             try
             {
-                //logger.CreateMSBuildMessage("ABT4", "Create reports: ...", "assembly-binding");
                 toDo.HtmlIndexPage = cache.CreateReports(toDo.AppConfigFileInfo);
             }
             catch (Exception ex)
@@ -151,7 +102,6 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         {
             try
             {
-                //logger.CreateMSBuildMessage("ABT5", $"Update config file: {toDo.AppConfigFileInfo.GetShortPathInfo(20)}", "assembly-binding");
                 if (toDo.AppConfigFileInfo.Exists) toDo.AppConfigFileInfo.IsReadOnly = false;
                 cache.CreateOrUpdateApplicationConfigFile(toDo.AppConfigFileInfo.FullName);
             }
@@ -184,8 +134,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
                 new[] { "debug", "release" } :
                 new[] { configurationName };
 
-
-            var toDoList = baseDirInfo.GetFiles("*.config", enumerationOptions)
+            var fileInfoList = baseDirInfo.GetFiles("*.config", enumerationOptions)
                 .Where(x => x.Directory != null &&
                             !x.Directory.FullName.Contains($"{Path.DirectorySeparatorChar}obj",
                                 StringComparison.InvariantCultureIgnoreCase) &&
@@ -193,17 +142,19 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
                                 StringComparison.InvariantCultureIgnoreCase) &&
                             x.Directory.FullName.Contains(branch, StringComparison.CurrentCultureIgnoreCase) &&
                             ApplicationConfiguration.IsAppConfigFile(x.FullName))
-                .OrderBy(x => x.FullName)
-                .Select(x => new ToDo(x.Directory!, x)).ToList();
+                .OrderBy(x => x.FullName).ToList();
 
-            var count = toDoList.Count;
+            var count = fileInfoList.Count;
             
-            foreach (var toDo in toDoList.ToList())
+            foreach (var fileInfo in fileInfoList.ToList())
             {
-                toDoList.Remove(toDo);
-                logger.CreateMSBuildMessage("ABT2", $"=== Processing {count - toDoList.Count}/{count} ===", "assembly-binding");
+                var toDo = new ToDo(fileInfo.Directory!, fileInfo);
+             
+                logger.CreateMSBuildMessage("ABT2", $"=== Processing {count - fileInfoList.Count}/{count} ===", "assembly-binding");
                 logger.CreateMSBuildMessage("ABT3", $"{toDo.BaseDirInfo.GetShortPathInfo(20)}", "assembly-binding");
                 logger.CreateMSBuildMessage("ABT4", $"{toDo.AppConfigFileInfo.GetShortPathInfo(20)}", "assembly-binding");
+
+                fileInfoList.Remove(fileInfo);
 
                 if (string.Equals(toDo.AppConfigFileInfo?.Name, "app.config", StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -215,11 +166,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
                                       where Directory.Exists(binPath) && Directory.GetFiles(binPath, "*.dll").Length > 0
                                       select new DirectoryInfo(binPath)).FirstOrDefault();
 
-                    if (binDirInfo == null)
-                    {
-                        continue;
-                    }
-
+                    if (binDirInfo == null) continue;
                     toDo.BaseDirInfo = binDirInfo;
                 }
                 

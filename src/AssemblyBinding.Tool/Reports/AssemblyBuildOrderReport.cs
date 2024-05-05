@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Text;
+﻿using System.Text;
 using Oleander.Assembly.Binding.Tool.Data;
 using Oleander.Assembly.Binding.Tool.Extensions;
 
