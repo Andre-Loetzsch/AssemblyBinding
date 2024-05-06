@@ -48,8 +48,8 @@ internal static class AssemblyBindingsExtensions
 
         var navigationLinks = new Dictionary<string, string>
         {
-            [htmlMainIndexFileName] = "Assembly binding index",
-            [htmlIndexFileName] = $"Assembly Binding Report {index + 1}"
+            [htmlMainIndexFileName] = "Assembly binding results",
+            [htmlIndexFileName] = $"Assembly binding reports - {index + 1}"
         };
 
         var result = bindings.CreateAssemblyBindingsReport();
@@ -66,8 +66,8 @@ internal static class AssemblyBindingsExtensions
         title = $"{index + 1}.2 Top level assemblies";
         result = bindings.CreateTopLevelAssemblyReport(title);
         
-        File.WriteAllText(topLevelAssembliesFileName, 
-            HtmlHeadTemplate.CreateReportTemplate(result, title, navigationLinks));
+        File.WriteAllText(topLevelAssembliesFileName,
+            HtmlCreator.CreateReportPage(result, title, navigationLinks));
 
         links[topLevelAssembliesFileName] = "Top level assemblies";
 
@@ -81,7 +81,7 @@ internal static class AssemblyBindingsExtensions
         if (!string.IsNullOrEmpty(result))
         {
             File.WriteAllText(referencedByAssembliesFileName,
-                HtmlHeadTemplate.CreateReportTemplate(result, title, navigationLinks));
+                HtmlCreator.CreateReportPage(result, title, navigationLinks));
             links[referencedByAssembliesFileName] = "Referenced by Assemblies";
         }
 
@@ -94,7 +94,7 @@ internal static class AssemblyBindingsExtensions
         if (!string.IsNullOrEmpty(result))
         {
             File.WriteAllText(unresolvedAssembliesFileName,
-                HtmlHeadTemplate.CreateReportTemplate(result, title, navigationLinks));
+                HtmlCreator.CreateReportPage(result, title, navigationLinks));
             links[unresolvedAssembliesFileName] = "Unresolved assemblies";
         }
 
@@ -108,7 +108,7 @@ internal static class AssemblyBindingsExtensions
         if (!string.IsNullOrEmpty(result))
         {
             File.WriteAllText(assemblyDependenciesReportFileName,
-                HtmlHeadTemplate.CreateReportTemplate(result, title, navigationLinks));
+                HtmlCreator.CreateReportPage(result, title, navigationLinks));
             links[assemblyDependenciesReportFileName] = "Assembly dependencies";
         }
 
@@ -121,7 +121,7 @@ internal static class AssemblyBindingsExtensions
         if (!string.IsNullOrEmpty(result))
         {
             File.WriteAllText(createAssemblyBuildOrderReportFileName,
-                HtmlHeadTemplate.CreateReportTemplate(result, title, navigationLinks));
+                HtmlCreator.CreateReportPage(result, title, navigationLinks));
             links[createAssemblyBuildOrderReportFileName] = "Assembly build order";
         }
 
@@ -132,10 +132,9 @@ internal static class AssemblyBindingsExtensions
             links[appConfigFileInfo.FullName] = appConfigFileInfo.Name;
         }
 
-        var headLine1 = $"Assembly Binding Report {index + 1}";
-        var headLine2 = HtmlIndex.CreateHtmlLink(htmlMainIndexFileName, "Report selection");
-
-        File.WriteAllText(htmlIndexFileName, HtmlIndex.Create(links, $"{index + 1} Assembly Binding Report", headLine1, headLine2, index));
+        File.WriteAllText(htmlIndexFileName, 
+            HtmlCreator.CreateReportSelectionPage(links, $"{index + 1} Assembly binding reports", 
+                htmlMainIndexFileName, "Assembly binding results", index));
 
         return htmlIndexFileName;
     }

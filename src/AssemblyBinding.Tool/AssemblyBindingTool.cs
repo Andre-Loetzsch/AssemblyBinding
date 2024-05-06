@@ -57,7 +57,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         if (links.Count == 0) return result;
 
         var htmlIndexFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "reports", "index.html");
-        File.WriteAllText(htmlIndexFileName, HtmlIndex.Create(links, "Assembly binding reports", "Assembly binding index", "Select a link to get more information"));
+        File.WriteAllText(htmlIndexFileName, HtmlCreator.CreateMainIndexPage(links, "Assembly binding results", "Assembly binding results", "Select a link to get more information"));
 
         if (links.Count == 1) htmlIndexFileName = links.Keys.First();
 
