@@ -11,7 +11,13 @@ internal static class HtmlIndex
 
         foreach (var (key, value) in links)
         {
-            sb.AppendLine($"          <li><a href=\"{key}\">{index + 1}.{i++}: {value}</a></li>");
+            if (key.EndsWith(".html", StringComparison.InvariantCultureIgnoreCase))
+            {
+                sb.AppendLine($"          <li><a href=\"{key}\">{index + 1}.{i++}: {value}</a></li>");
+                continue;
+            }
+
+            sb.AppendLine($"          <li><a href=\"{key}\" target=\"_blank\">{index + 1}.{i++}: {value}</a></li>");
         }
 
         sb.AppendLine("    </ul>")
@@ -28,7 +34,8 @@ internal static class HtmlIndex
 
         foreach (var (key, value) in links)
         {
-            sb.AppendLine($"          <li><a href=\"{key}\" target=\"_blank\" rel=\"noopener noreferrer\">{i++}: {value}</a></li>");
+            //sb.AppendLine($"          <li><a href=\"{key}\" target=\"_blank\" rel=\"noopener noreferrer\">{i++}: {value}</a></li>");
+            sb.AppendLine($"          <li><a href=\"{key}\">{i++}: {value}</a></li>");
         }
 
         sb.AppendLine("    </ul>")
@@ -56,7 +63,7 @@ internal static class HtmlIndex
 
     internal static string CreateHtmlLink(string link, string name)
     {
-        return $"<a href=\"{link}\" target=\"_blank\">{name}</a>";
-
+        //return $"<a href=\"{link}\" target=\"_blank\">{name}</a>";
+        return $"<a href=\"{link}\">{name}</a>";
     }
 }

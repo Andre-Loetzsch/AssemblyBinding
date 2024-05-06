@@ -56,20 +56,17 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
 
         if (links.Count == 0) return result;
 
-        var htmlIndexFileName = links.Keys.First();
+        var htmlIndexFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "reports", "index.html");
+        File.WriteAllText(htmlIndexFileName, HtmlIndex.Create(links, "Assembly binding reports", "Assembly binding index", "Select a link to get more information"));
 
-        if (links.Count > 1)
-        {
-            htmlIndexFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "reports", "index.html");
-            File.WriteAllText(htmlIndexFileName, HtmlIndex.Create(links, "Assembly binding reports", "Assembly binding index", "Select a link to get more information"));
-        }
+        if (links.Count == 1) htmlIndexFileName = links.Keys.First();
 
         if (string.IsNullOrEmpty(htmlIndexFileName)) return result;
 
         var psi = new ProcessStartInfo
         {
             FileName = htmlIndexFileName,
-            UseShellExecute = true 
+            UseShellExecute = true
         };
 
         return Process.Start(psi) == null ? 4 : result;
@@ -145,11 +142,11 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
                 .OrderBy(x => x.FullName).ToList();
 
             var count = fileInfoList.Count;
-            
+
             foreach (var fileInfo in fileInfoList.ToList())
             {
                 var toDo = new ToDo(fileInfo.Directory!, fileInfo);
-             
+
                 logger.CreateMSBuildMessage("ABT2", $"=== Processing {count - fileInfoList.Count}/{count} ===", "assembly-binding");
                 logger.CreateMSBuildMessage("ABT3", $"{toDo.BaseDirInfo.GetShortPathInfo(20)}", "assembly-binding");
                 logger.CreateMSBuildMessage("ABT4", $"{toDo.AppConfigFileInfo.GetShortPathInfo(20)}", "assembly-binding");
@@ -169,7 +166,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
                     if (binDirInfo == null) continue;
                     toDo.BaseDirInfo = binDirInfo;
                 }
-                
+
                 yield return toDo;
             }
         }
