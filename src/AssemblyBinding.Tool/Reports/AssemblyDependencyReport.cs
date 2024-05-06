@@ -6,10 +6,10 @@ namespace Oleander.Assembly.Binding.Tool.Reports;
 
 internal static class AssemblyDependencyReport
 {
-    internal static string Create(IDictionary<string, AssemblyBindings> bindings)
+    internal static string Create(IDictionary<string, AssemblyBindings> bindings, string title)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("# Assembly dependency tree:");
+        sb.Append("# ").AppendLine(title);
 
         foreach (var item in bindings
                      .Where(x => x.Value.Resolved)

@@ -8,18 +8,19 @@ namespace Oleander.Assembly.Binding.Tool;
 internal class AssemblyBindingsBuilder
 {
     private static readonly ILogger logger = LoggerFactory.CreateLogger<AssemblyBindingsBuilder>();
+   
 
     internal static Dictionary<string, AssemblyBindings> Create(DirectoryInfo directoryInfo)
     {
         var cache = new Dictionary<string, AssemblyBindings>();
-        var assembliesInDirectory = new List<FileInfo>();
+        var assembliesInDirectories = new List<FileInfo>();
 
         logger.LogInformation("Load files from directory: '{directory}'.", directoryInfo.FullName);
 
-        assembliesInDirectory.AddRange(directoryInfo.GetFiles("*.exe"));
-        assembliesInDirectory.AddRange(directoryInfo.GetFiles("*.dll"));
+        assembliesInDirectories.AddRange(directoryInfo.GetFiles("*.exe"));
+        assembliesInDirectories.AddRange(directoryInfo.GetFiles("*.dll"));
 
-        foreach (var assemblyFile in assembliesInDirectory)
+        foreach (var assemblyFile in assembliesInDirectories)
         {
             try
             {

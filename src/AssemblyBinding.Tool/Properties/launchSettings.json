@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "Oleander.AssemblyBinding.Tool D316IT012": {
+    "Oleander.AssemblyBinding.Tool D316IT012 W16Production": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --base-dir D:\\dev\\Tentakel\\Tentakel.W16Production --no-report false --app-config D:\\\\App.config"
+      "commandLineArgs": "resolve --base-dir D:\\dev\\Tentakel\\Tentakel.W16Production\\dev-André\\Apps\\W16Production --no-report false --app-config D:\\App.config"
     },
     "Oleander.AssemblyBinding.Tool D316IT012 --recursive": {
       "commandName": "Project",
@@ -14,7 +14,7 @@
     },
     "Oleander.AssemblyBinding.Tool L316IT012": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --base-dir C:\\\\dev\\\\Tentakel\\\\Tentakel.Production.LineExplorer\\\\dev-André\\\\Plugin.ScrapCapturing.InjectionMolding.Test\\ --recursive"
+      "commandLineArgs": "resolve --base-dir C:\\dev\\Tentakel\\ --recursive"
     }
   }
 }

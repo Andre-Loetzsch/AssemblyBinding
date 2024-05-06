@@ -41,4 +41,3 @@ dotnet tool uninstall dotnet-assembly-binding-tool --global
 ### Example:
 assembly-binding resolve --app-config D:/dev/MyApp/MyApp.exe.config --base-dir D:/dev/MyApp/
 
-

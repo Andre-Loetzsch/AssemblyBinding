@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Text;
+﻿using System.Text;
 using Oleander.Assembly.Binding.Tool.Data;
 using Oleander.Assembly.Binding.Tool.Extensions;
 
@@ -7,10 +6,10 @@ namespace Oleander.Assembly.Binding.Tool.Reports;
 
 internal static class AssemblyBuildOrderReport
 {
-    internal static string Create(IDictionary<string, AssemblyBindings> bindings)
+    internal static string Create(IDictionary<string, AssemblyBindings> bindings, string title)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("# Assembly dependency order:");
+        sb.Append("# ").AppendLine(title);
 
         var bindingList = bindings.Values
             .Where(x => x.Resolved)
