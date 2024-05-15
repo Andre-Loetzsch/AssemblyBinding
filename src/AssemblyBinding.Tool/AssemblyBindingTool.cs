@@ -172,6 +172,8 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         }
         else
         {
+            logger.CreateMSBuildMessage("ABT3", $"{baseDirInfo.GetShortPathInfo(20)}", "assembly-binding");
+            logger.CreateMSBuildMessage("ABT4", $"{appConfigFileInfo.GetShortPathInfo(20)}", "assembly-binding");
             yield return new ToDo(baseDirInfo, appConfigFileInfo);
         }
     }
