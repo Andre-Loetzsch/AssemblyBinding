@@ -18,10 +18,6 @@
     <NoWarn>$(NoWarn);nullable</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="$(SolutionDir)README.md" Pack="true" PackagePath="\"/>
-  </ItemGroup>
-
   <PropertyGroup Condition="'$(VersionSuffix)' == '' AND '$(VersionDevSuffix)' != ''">
     <Version>$(AssemblyVersion)-$(VersionDevSuffix)</Version>
     <InformationalVersion>$(AssemblyVersion)+$(VersionDevSuffix)</InformationalVersion>
