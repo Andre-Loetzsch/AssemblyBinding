@@ -1,0 +1,32 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <WarningsAsErrors>OAVBT47</WarningsAsErrors>
+    <Product Condition="'$(VersionSuffix)' != ''">$(AssemblyName)-$(TargetFramework)+$(VersionSuffix)+$(Configuration)</Product>
+    <Product Condition="'$(VersionSuffix)' == ''">$(AssemblyName)-$(TargetFramework)+$(Configuration)</Product>
+    <LangVersion>latest</LangVersion>
+    <Copyright>Copyright © Oleander $([System.DateTime]::UtcNow.Year)</Copyright>
+    <Company>Oleander</Company>
+    <Title>$(AssemblyName)</Title>
+    <Authors>Oleander</Authors>
+    <Description>$(AssemblyName)</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <NoWarn>$(NoWarn);nullable</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(VersionSuffix)' == '' AND '$(VersionDevSuffix)' != ''">
+    <Version>$(AssemblyVersion)-$(VersionDevSuffix)</Version>
+    <InformationalVersion>$(AssemblyVersion)+$(VersionDevSuffix)</InformationalVersion>
+    <Product>$(AssemblyName)-$(TargetFramework)+$(VersionDevSuffix)+$(Configuration)</Product>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(Configuration) == 'Debug'">
+    <EmbedAllSources>true</EmbedAllSources>
+    <DebugType>Embedded</DebugType>
+  </PropertyGroup>
+</Project>
+
