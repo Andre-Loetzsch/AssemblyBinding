@@ -1,6 +1,8 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
+using System.Diagnostics;
+using System.Globalization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -45,9 +47,19 @@ public class Program
             .UseDefaults() // automatically configures dotnet-suggest
             .Build();
 
+        var processName = Process.GetCurrentProcess().ProcessName;
+
+        if (Process.GetProcessesByName(processName).Length > 1)
+        {
+            logger.CreateMSBuildError("ABT-1", "The application is already running.", "Main");
+            return -1;
+        }
+
         TabCompletions.Logger = logger;
 
-        rootCommand.AddCommand(new AssemblyBindingCommand(assemblyBindingTool));
+        var startTime = DateTime.Now;
+        logger.CreateMSBuildMessage("ABT0", $"== assembly-binding tool started at {DateTime.Now.ToString("HH:ss", CultureInfo.InvariantCulture)} ==", "Main");
+        rootCommand.AddCommand(new ResolveCommand(assemblyBindingTool));
 
         var exitCode = await commandLine.InvokeAsync(args, console);
 
@@ -63,7 +75,12 @@ public class Program
 
             if (!arguments.StartsWith("[suggest:"))
             {
-                logger.CreateMSBuildMessage("ABT0", $"assembly-binding {exitCode}", "Main");
+                var elapsedTimeSpan = DateTime.Now - startTime;
+                var elapsedTimeMsg = elapsedTimeSpan.TotalMinutes >= 1 ?
+                    $"{Math.Round(elapsedTimeSpan.TotalMinutes, 2).ToString(CultureInfo.InvariantCulture)} minutes" : 
+                    $"{Math.Round(elapsedTimeSpan.TotalSeconds, 2).ToString(CultureInfo.InvariantCulture)} seconds";
+
+                logger.CreateMSBuildMessage("ABT0", $"== assembly-binding tool completed at {DateTime.Now.ToString("HH:ss", CultureInfo.InvariantCulture)} and took {elapsedTimeMsg} ==", "Main");
             }
         }
         else

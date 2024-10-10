@@ -7,14 +7,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2FA92403-72B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oleander.Assembly.Binding.Tool", "src\AssemblyBinding.Tool\Oleander.Assembly.Binding.Tool.csproj", "{C5BD14DF-5125-49F2-9AD4-E10FAFC0EC0F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{3FA1CA2A-8930-4D4E-B5F9-6AF390BB07E5}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{3FA1CA2A-8930-4D4E-B5F9-6AF390BB07E5}"
 	ProjectSection(SolutionItems) = preProject
 		Common\targets\common.targets = Common\targets\common.targets
+		common\targets\generatePackage.targets = common\targets\generatePackage.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oleander.Assembly.Binding.Test", "tests\Oleander.Assembly.Binding.Test\Oleander.Assembly.Binding.Test.csproj", "{836EE9F2-B7E0-46E0-B689-898A0B163915}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oleander.Assembly.Binding.Test", "tests\Oleander.Assembly.Binding.Test\Oleander.Assembly.Binding.Test.csproj", "{836EE9F2-B7E0-46E0-B689-898A0B163915}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{7B001AA0-93B2-4E35-B6F8-1A82F1B016A5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{5BDDADB4-BB64-4DBE-8D5B-F0333BD10104}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\deployDevNugetPackages.yml = .github\workflows\deployDevNugetPackages.yml
+		.github\workflows\deployReleaseNugetPackages.yml = .github\workflows\deployReleaseNugetPackages.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

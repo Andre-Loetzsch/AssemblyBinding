@@ -11,17 +11,20 @@ internal static class MsBuildLogFormatter
 
     public static string CreateMSBuildMessageFormat(string code, string text, string subCategory, [CallerLineNumber] int line = 0)
     {
-        return $"{FileName}({line},0) : {subCategory} message {code} : {text}";
+        var linePadRight = $"({line},0)".PadRight(9);
+        return $"{FileName}{linePadRight} : {subCategory} message {code} : {text}";
     }
 
     public static string CreateMSBuildWarningFormat(string code, string text, string subCategory, [CallerLineNumber] int line = 0)
     {
-        return $"{FileName}({line},0) : {subCategory} warning {code} : {text}";
+        var linePadRight = $"({line},0)".PadRight(9);
+        return $"{FileName}{linePadRight} : {subCategory} warning {code} : {text}";
     }
 
     public static string CreateMSBuildErrorFormat(string code, string text, string subCategory, [CallerLineNumber] int line = 0)
     {
-        return $"{FileName}({line},0) : {subCategory} error {code} : {text}";
+        var linePadRight = $"({line},0)".PadRight(9);
+        return $"{FileName}{linePadRight} : {subCategory} error {code} : {text}";
     }
 
     public static string CreateMSBuildMessage(this ILogger logger, string code, string text, int line, string subCategory)
@@ -95,5 +98,6 @@ internal static class MsBuildLogFormatter
         logger.LogError(messageFormat, FileName, line, 0, subCategory, "error", code, text);
         return CreateMSBuildError(code, text, subCategory, line);
     }
-    private static string FileName => Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+    private static readonly string FileName = Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 }

@@ -18,6 +18,7 @@ internal class BaseDirOption : Option<DirectoryInfo>
             }
         });
 
+        this.IsRequired = true;
         this.AddCompletions(ctx => TabCompletions.FileCompletions(ctx.WordToComplete));
     }
 }

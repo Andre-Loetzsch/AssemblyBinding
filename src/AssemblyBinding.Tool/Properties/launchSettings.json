@@ -1,8 +1,12 @@
 {
   "profiles": {
-    "Oleander.AssemblyBinding.Tool D316IT012": {
+    "Oleander.AssemblyBinding.Tool D316IT012 W16Production": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --base-dir D:\\dev\\Tentakel\\dependencies\\dev-André\\Debug --no-report false --app-config D:\\App.config"
+      "commandLineArgs": "resolve --base-dir D:\\dev\\Tentakel\\Tentakel.W16Production\\dev-André\\Apps\\W16Production --no-report false --app-config D:\\App.config"
+    },
+    "Oleander.AssemblyBinding.Tool D316IT012 --recursive": {
+      "commandName": "Project",
+      "commandLineArgs": "resolve --base-dir D:\\dev\\Tentakel_20240429\\ --recursive --branch dev-André --configuration-name Release"
     },
     "Oleander.AssemblyBinding.Tool TargetDir": {
       "commandName": "Project",
@@ -10,7 +14,7 @@
     },
     "Oleander.AssemblyBinding.Tool L316IT012": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --base-dir C:\\dev\\Tentakel\\dependencies\\dev-André\\Debug"
+      "commandLineArgs": "resolve --base-dir C:\\dev\\Tentakel\\ --recursive"
     }
   }
 }

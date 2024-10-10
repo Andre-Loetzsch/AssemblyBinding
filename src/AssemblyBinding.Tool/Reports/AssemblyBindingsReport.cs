@@ -21,16 +21,16 @@ internal static class AssemblyBindingsReport
             if (minAssemblyVersion == bindingInfo.AssemblyVersion &&
                 maxAssemblyVersion == bindingInfo.AssemblyVersion) continue;
 
-            var oldVersion = minAssemblyVersion?.ToString();
+            var oldVersion = minAssemblyVersion.ToVersionString();
 
             if (minAssemblyVersion < maxAssemblyVersion)
             {
-                oldVersion += $"-{maxAssemblyVersion}";
+                oldVersion += $"-{maxAssemblyVersion.ToVersionString()}";
             }
 
             sb.AppendLine("  <dependentAssembly>");
             sb.AppendLine($"    <assemblyIdentity name=\"{bindingInfo.AssemblyName}\" publicKeyToken=\"{bindingInfo.PublicKey}\" culture=\"{bindingInfo.Culture}\" />");
-            sb.AppendLine($"    <bindingRedirect oldVersion=\"{oldVersion}\" newVersion=\"{bindingInfo.AssemblyVersion}\" />");
+            sb.AppendLine($"    <bindingRedirect oldVersion=\"{oldVersion}\" newVersion=\"{bindingInfo.AssemblyVersion.ToVersionString()}\" />");
             sb.AppendLine("  </dependentAssembly>");
         }
 

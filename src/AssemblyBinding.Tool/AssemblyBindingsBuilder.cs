@@ -8,18 +8,19 @@ namespace Oleander.Assembly.Binding.Tool;
 internal class AssemblyBindingsBuilder
 {
     private static readonly ILogger logger = LoggerFactory.CreateLogger<AssemblyBindingsBuilder>();
+   
 
     internal static Dictionary<string, AssemblyBindings> Create(DirectoryInfo directoryInfo)
     {
         var cache = new Dictionary<string, AssemblyBindings>();
-        var assembliesInDirectory = new List<FileInfo>();
+        var assembliesInDirectories = new List<FileInfo>();
 
         logger.LogInformation("Load files from directory: '{directory}'.", directoryInfo.FullName);
 
-        assembliesInDirectory.AddRange(directoryInfo.GetFiles("*.exe"));
-        assembliesInDirectory.AddRange(directoryInfo.GetFiles("*.dll"));
+        assembliesInDirectories.AddRange(directoryInfo.GetFiles("*.exe"));
+        assembliesInDirectories.AddRange(directoryInfo.GetFiles("*.dll"));
 
-        foreach (var assemblyFile in assembliesInDirectory)
+        foreach (var assemblyFile in assembliesInDirectories)
         {
             try
             {
@@ -31,6 +32,7 @@ internal class AssemblyBindingsBuilder
             }
         }
 
+        GlobalAssemblyResolver.Instance.ClearCache();
         return cache;
     }
 
@@ -39,13 +41,13 @@ internal class AssemblyBindingsBuilder
         try
         {
             var assemblyDefinition = GlobalAssemblyResolver.Instance.GetAssemblyDefinition(path);
+
             if (assemblyDefinition == null)
             {
                 logger.LogInformation("File '{fileName}' is skipped because it is not a dotnet assembly.", Path.GetFileName(path));
                 return;
             }
 
-            //Console.WriteLine(assemblyDefinition.Name.Name);
             logger.LogDebug("Collect information from the assembly: '{assemblyName}'.", assemblyDefinition.Name.Name);
 
             var key = assemblyDefinition.BuildAssemblyKey();

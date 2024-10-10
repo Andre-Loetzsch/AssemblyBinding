@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyVersion>0.5.1.0</AssemblyVersion>
-    <SourceRevisionId>552edfd177eae24a1ede3cb58e0015a580e367c0</SourceRevisionId>
+    <AssemblyVersion>0.5.13.1</AssemblyVersion>
+    <SourceRevisionId>4aeee815dd153219fb6c1801dc50003390b8e9d6</SourceRevisionId>
     <VersionSuffix>beta</VersionSuffix>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version Condition="'$(VersionSuffix)' != ''">$(AssemblyVersion)-$(VersionSuffix)</Version>
@@ -10,9 +10,12 @@
     <InformationalVersion>$(AssemblyVersion)</InformationalVersion>
   </PropertyGroup>
 
-  <Import Project="..\..\Common\targets\common.targets" />
+  <Import Project="..\..\common\targets\common.targets" />
+  <Import Project="..\..\common\targets\generatePackage.targets" />
 
   <PropertyGroup>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
     <OutputType>Exe</OutputType>
     <PackAsTool>True</PackAsTool>
     <ToolCommandName>assembly-binding</ToolCommandName>
@@ -25,9 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
     <PackageReference Include="Oleander.Assembly.Comparers" Version="1.0.0" />
-    <PackageReference Include="Oleander.Assembly.Versioning.BuildTask" Version="1.0.1.1">
+    <PackageReference Include="Oleander.Assembly.Versioning.BuildTask" Version="1.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -41,7 +44,7 @@
     <PackageReference Include="Oleander.Extensions.Logging.TextFormatters" Version="1.1.23347.11358" />
     <PackageReference Include="Oleander.Extensions.Logging.TextFormatters.Abstractions" Version="1.1.23347.11358" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
-    <PackageReference Include="Westwind.AspNetCore.Markdown" Version="3.16.0" />
+    <PackageReference Include="Westwind.AspNetCore.Markdown" Version="3.21.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,4 +52,10 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties properties_4launchsettings_1json__JsonSchema="https://json.schemastore.org/lintstagedrc.schema.json" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
