@@ -16,8 +16,7 @@ internal static class DirectoryFileInfoExtensions
             {
                 var path = splitPath[i];
                 pathLen += path.Length;
-
-                tempList.Add(path);
+                tempList.Insert(0, path);
 
                 if (pathLen >= tailLen) break;
             }
@@ -42,8 +41,7 @@ internal static class DirectoryFileInfoExtensions
             {
                 var path = splitPath[i];
                 pathLen += path.Length;
-
-                tempList.Add(path);
+                tempList.Insert(0, path);
 
                 if (pathLen >= tailLen) break;
             }
