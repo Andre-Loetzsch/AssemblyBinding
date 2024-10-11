@@ -13,7 +13,7 @@ env:
   SOLUTION: ${{ github.workspace }}\Oleander.Assembly.Binding.Tool.sln
 jobs:
   deploy_dev:
-    name: 'Deploy dev packages'
+    name: 'Deploy release packages'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -47,7 +47,7 @@ jobs:
       - name: 'Push nuget packages'
         if: matrix.os == 'windows-latest'
         shell: bash
-        run: dotnet nuget push "${{env.PACKOUTDIR}}\*.nupkg" --api-key ${{secrets.GITHUB_TOKEN}} -s "https://nuget.pkg.github.com/${{github.repository_owner}}/index.json" --skip-duplicate
+        run: dotnet nuget push "${{env.PACKOUTDIR}}\*.nupkg" --api-key ${{secrets.GITHUB_TOKEN}} --source "https://nuget.pkg.github.com/${{github.repository_owner}}/index.json" --skip-duplicate
 
       - name: 'Push nuget packages to NugetOrg'
         if: matrix.os == 'windows-latest'
