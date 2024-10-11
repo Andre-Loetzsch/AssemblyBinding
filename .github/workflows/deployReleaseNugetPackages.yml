@@ -47,4 +47,9 @@ jobs:
       - name: 'Push nuget packages'
         if: matrix.os == 'windows-latest'
         shell: bash
-        run: dotnet nuget push "${{env.PACKOUTDIR}}\*.nupkg" -k ${{secrets.GITHUB_TOKEN}} -s "https://nuget.pkg.github.com/${{github.repository_owner}}/index.json" --skip-duplicate
+        run: dotnet nuget push "${{env.PACKOUTDIR}}\*.nupkg" --api-key ${{secrets.GITHUB_TOKEN}} -s "https://nuget.pkg.github.com/${{github.repository_owner}}/index.json" --skip-duplicate
+
+      - name: 'Push nuget packages to NugetOrg'
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: dotnet nuget push "${{env.PACKOUTDIR}}\*.nupkg" --api-key "${{ secrets.NUGETORG_ACCESS_TOKEN }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
