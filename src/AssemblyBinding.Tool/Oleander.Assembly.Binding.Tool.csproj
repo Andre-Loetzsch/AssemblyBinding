@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyVersion>0.5.13.1</AssemblyVersion>
-    <SourceRevisionId>4aeee815dd153219fb6c1801dc50003390b8e9d6</SourceRevisionId>
+    <AssemblyVersion>0.5.14.0</AssemblyVersion>
+    <SourceRevisionId>3896b77aa8b213b2d03b1d6cdbeb0ea3f21a47e9</SourceRevisionId>
     <VersionSuffix>beta</VersionSuffix>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version Condition="'$(VersionSuffix)' != ''">$(AssemblyVersion)-$(VersionSuffix)</Version>
@@ -52,10 +52,4 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties properties_4launchsettings_1json__JsonSchema="https://json.schemastore.org/lintstagedrc.schema.json" />
-    </VisualStudio>
-  </ProjectExtensions>
 </Project>
