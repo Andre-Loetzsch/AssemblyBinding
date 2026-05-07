@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyVersion>0.5.14.0</AssemblyVersion>
     <SourceRevisionId>3896b77aa8b213b2d03b1d6cdbeb0ea3f21a47e9</SourceRevisionId>
-    <VersionSuffix>beta</VersionSuffix>
+    <VersionSuffix></VersionSuffix>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version Condition="'$(VersionSuffix)' != ''">$(AssemblyVersion)-$(VersionSuffix)</Version>
     <Version Condition="'$(VersionSuffix)' == ''">$(AssemblyVersion)</Version>
@@ -14,7 +14,7 @@
   <Import Project="..\..\common\targets\generatePackage.targets" />
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <OutputType>Exe</OutputType>
     <PackAsTool>True</PackAsTool>
