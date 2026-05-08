@@ -73,7 +73,7 @@ public class Program
             Console.WriteLine(MsBuildLogFormatter.CreateMSBuildErrorFormat("ABT1", errorText, "Oleander.Assembly.Binding.Tool"));
             Console.ResetColor();
         }
-        else
+        else if (!string.IsNullOrEmpty(outText))
         {
             logger.LogInformation("{stream.out}", outText);
         }

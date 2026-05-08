@@ -28,8 +28,8 @@ internal class ResolveCommand : Command
                 parseResult.GetValue(appConfigFileOption),
                 parseResult.GetValue(recursiveOption),
                 parseResult.GetValue(noReportOption),
-                parseResult.GetRequiredValue(branchOption),
-                parseResult.GetRequiredValue(configurationNameOption)));
+                parseResult.GetValue(branchOption),
+                parseResult.GetValue(configurationNameOption)));
         });
     }
 }
