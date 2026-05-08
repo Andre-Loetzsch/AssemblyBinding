@@ -1,6 +1,4 @@
 ﻿using System.CommandLine;
-using System.CommandLine.Builder;
-using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Extensions.Configuration;
@@ -40,13 +38,8 @@ public class Program
         host.Services.InitLoggerFactory();
 
         var logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger<Program>();
-        var console = new ToolConsole(logger);
         var assemblyBindingTool = host.Services.GetRequiredService<AssemblyBindingTool>();
         var rootCommand = new RootCommand("assembly-binding-tool");
-        var commandLine = new CommandLineBuilder(rootCommand)
-            .UseDefaults() // automatically configures dotnet-suggest
-            .Build();
-
         var processName = Process.GetCurrentProcess().ProcessName;
 
         if (Process.GetProcessesByName(processName).Length > 1)
@@ -59,11 +52,31 @@ public class Program
 
         var startTime = DateTime.Now;
         logger.CreateMSBuildMessage("ABT0", $"== assembly-binding tool started at {DateTime.Now.ToString("HH:ss", CultureInfo.InvariantCulture)} ==", "Main");
-        rootCommand.AddCommand(new ResolveCommand(assemblyBindingTool));
+        rootCommand.Add(new ResolveCommand(assemblyBindingTool));
 
-        var exitCode = await commandLine.InvokeAsync(args, console);
+        var outWriter = new StringWriter();
+        var errorWriter = new StringWriter();
+        var exitCode = await rootCommand.Parse(args).InvokeAsync(new()
+        {
+            Output = outWriter,
+            Error = errorWriter
+        });
 
-        console.Flush();
+        var outText = outWriter.ToString();
+        var errorText = errorWriter.ToString();
+
+        if (!string.IsNullOrEmpty(errorText))
+        {
+            logger.LogError("{stream.error}", errorText);
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(MsBuildLogFormatter.CreateMSBuildErrorFormat("ABT1", errorText, "Oleander.Assembly.Binding.Tool"));
+            Console.ResetColor();
+        }
+        else
+        {
+            logger.LogInformation("{stream.out}", outText);
+        }
 
         const string logMsg = "assembly-binding '{args}' exit with exit code {exitCode}";
 

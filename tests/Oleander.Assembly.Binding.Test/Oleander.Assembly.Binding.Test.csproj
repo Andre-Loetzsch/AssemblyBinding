@@ -3,8 +3,8 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <AssemblyVersion>0.4.2.2</AssemblyVersion>
-    <SourceRevisionId>4aeee815dd153219fb6c1801dc50003390b8e9d6</SourceRevisionId>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <SourceRevisionId>54025bf614344181e50c68802a87533652365e2b</SourceRevisionId>
     <VersionSuffix>beta</VersionSuffix>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version Condition="'$(VersionSuffix)' != ''">$(AssemblyVersion)-$(VersionSuffix)</Version>
@@ -18,7 +18,8 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	  <NoWarn Condition="$(AssemblyVersion)==1.0.0.0">OAVBT47</NoWarn>
+	</PropertyGroup>
 
 
   <ItemGroup>
