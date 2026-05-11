@@ -2,4 +2,10 @@
 
 namespace Oleander.Assembly.Binding.Tool.Options;
 
-internal class ConfigurationNameOption() : Option<string>(name: "--configuration-name", description: "Name of the configuration (Release, Debug)");
+internal class ConfigurationNameOption : Option<string>
+{
+    public ConfigurationNameOption() : base(name: "--configuration-name")
+    {
+        this.Description = "Name of the configuration (Release, Debug)";
+    }
+}
