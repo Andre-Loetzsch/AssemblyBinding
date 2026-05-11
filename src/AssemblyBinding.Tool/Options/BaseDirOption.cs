@@ -4,9 +4,11 @@ namespace Oleander.Assembly.Binding.Tool.Options;
 
 internal class BaseDirOption : Option<DirectoryInfo>
 {
-    public BaseDirOption() : base(name: "--base-dir", description: "The base application directory")
+    public BaseDirOption() : base(name: "--base-dir")
     {
-        this.AddValidator(result =>
+        this.Description = "The base application directory";
+
+        this.Validators.Add(result =>
         {
             var dirInfo = result.GetValueOrDefault<DirectoryInfo>();
 
@@ -14,11 +16,11 @@ internal class BaseDirOption : Option<DirectoryInfo>
 
             if (!dirInfo.Exists)
             {
-                result.ErrorMessage = $"Directory does not exists! '{dirInfo.FullName}'";
+                result.AddError($"Directory does not exists! '{dirInfo.FullName}'");
             }
         });
 
-        this.IsRequired = true;
-        this.AddCompletions(ctx => TabCompletions.FileCompletions(ctx.WordToComplete));
+        this.Required = true;
+        this.CompletionSources.Add(ctx => TabCompletions.FileCompletions(ctx.WordToComplete));
     }
 }

@@ -9,7 +9,7 @@ namespace Oleander.Assembly.Binding.Tool;
 
 internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
 {
-    internal int Execute(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, bool recursive, bool noReport, string branch, string configurationName)
+    internal int Execute(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, bool recursive, bool noReport, string? branch, string? configurationName)
     {
         if (recursive)
         {
@@ -46,7 +46,6 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         foreach (var toDo in this.CreateToDoItems(baseDirInfo, appConfigFileInfo, recursive, branch, configurationName))
         {
             var innerResult = this.InnerExecute(toDo, noReport);
-
 
             if (innerResult > 0) result = innerResult;
             if (toDo.HtmlIndexPage == null || toDo.AppConfigFileInfo == null) continue;
@@ -112,7 +111,7 @@ internal class AssemblyBindingTool(ILogger<AssemblyBindingTool> logger)
         return 0;
     }
 
-    private IEnumerable<ToDo> CreateToDoItems(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, bool recursive, string branch, string configurationName)
+    private IEnumerable<ToDo> CreateToDoItems(DirectoryInfo baseDirInfo, FileInfo? appConfigFileInfo, bool recursive, string? branch, string? configurationName)
     {
         if (recursive)
         {

@@ -4,22 +4,24 @@ namespace Oleander.Assembly.Binding.Tool.Options;
 
 internal class AppFileOption : Option<FileInfo>
 {
-    public AppFileOption() : base(name: "--app-config", description: "The application configuration file")
+    public AppFileOption() : base(name: "--app-config")
     {
-        this.AddValidator(result =>
+        this.Description = "The application configuration file";
+
+        this.Validators.Add(result =>
         {
             try
             {
                 var fileInfo = result.GetValueOrDefault<FileInfo>();
                 if (fileInfo == null || string.Equals(Path.GetExtension(fileInfo.FullName).Trim('\"'), ".config", StringComparison.InvariantCultureIgnoreCase)) return;
-                result.ErrorMessage = $"The file must be an application configuration file! expected: '*.config' current: {fileInfo.FullName}";
+                result.AddError($"The file must be an application configuration file! expected: '*.config' current: {fileInfo.FullName}");
             }
             catch (Exception ex)
             {
-                result.ErrorMessage = ex.Message;
+                result.AddError(ex.Message);
             }
         });
 
-        this.AddCompletions(ctx => TabCompletions.FileCompletions(ctx.WordToComplete, "*.config"));
+        this.CompletionSources.Add(ctx => TabCompletions.FileCompletions(ctx.WordToComplete, "*.config"));
     }
 }

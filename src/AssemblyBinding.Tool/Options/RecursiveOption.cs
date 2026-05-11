@@ -2,4 +2,11 @@
 
 namespace Oleander.Assembly.Binding.Tool.Options;
 
-internal class RecursiveOption() : Option<bool>(name: "--recursive", description: "Recursively updates all configuration files");
+internal class RecursiveOption : Option<bool>
+{
+    public RecursiveOption() : base(name: "--recursive")
+    {
+        this.Description = "Recursively updates all configuration files";
+    }
+}
+   
